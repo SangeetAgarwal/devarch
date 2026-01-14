@@ -27,6 +27,7 @@ Traditional development practices don't fully address these issues. This repo pr
 |-------|-------------|
 | [Claude Code Workflow Guide](docs/claude-code-workflow-guide.md) | Productive AI-assisted development sessions, context management, documentation patterns |
 | [AWS Serverless Backend Guide](docs/aws-serverless-backend-guide.md) | Let Claude build your API: Lambda, API Gateway, DynamoDB, custom domains, hardening |
+| [Architecture Decision Records](docs/architecture-decision-records-guide.md) | When and how to document design decisions with ADRs |
 
 ### Key Topics Covered
 
