@@ -475,7 +475,460 @@ aws cloudwatch put-metric-alarm \
 
 ---
 
-## Part 7: Working with Claude
+## Part 7: Deploy Scripts
+
+Reusable scripts make deployments repeatable and less error-prone. Keep these in a `scripts/` folder.
+
+### Project Structure with Scripts
+
+```
+my-api/
+├── scripts/
+│   ├── config.sh              # Shared configuration
+│   ├── deploy-dynamodb.sh     # Create/update DynamoDB table
+│   ├── deploy-iam.sh          # Create IAM role and policies
+│   ├── deploy-lambda.sh       # Build and deploy Lambda
+│   ├── deploy-api-gateway.sh  # Create/update API Gateway
+│   ├── deploy-custom-domain.sh # Set up custom domain + DNS
+│   └── deploy-all.sh          # Run all scripts in order
+├── src/
+│   └── ...
+└── package.json
+```
+
+### Configuration File
+
+```bash
+#!/bin/bash
+# scripts/config.sh - Shared configuration for all deploy scripts
+
+# Project settings
+export PROJECT_NAME="myapi"
+export AWS_REGION="us-east-1"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+# Resource names (derived from project name)
+export TABLE_NAME="${PROJECT_NAME}-data"
+export LAMBDA_ROLE_NAME="${PROJECT_NAME}-lambda-role"
+export LAMBDA_FUNCTION_NAME="${PROJECT_NAME}-handler"
+export API_NAME="${PROJECT_NAME}-api"
+
+# Domain settings
+export DOMAIN_NAME="api.yourdomain.com"
+export HOSTED_ZONE_ID="YOUR_ZONE_ID"
+export CERTIFICATE_ARN="arn:aws:acm:us-east-1:${AWS_ACCOUNT_ID}:certificate/YOUR_CERT_ID"
+
+# Runtime settings
+export LAMBDA_RUNTIME="nodejs18.x"
+export LAMBDA_HANDLER="handlers/index.handler"
+export LAMBDA_TIMEOUT=30
+export LAMBDA_MEMORY=256
+```
+
+### DynamoDB Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-dynamodb.sh
+set -e
+source "$(dirname "$0")/config.sh"
+
+echo "==> Deploying DynamoDB table: $TABLE_NAME"
+
+# Check if table exists
+if aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
+    echo "Table already exists, skipping creation"
+else
+    aws dynamodb create-table \
+        --table-name "$TABLE_NAME" \
+        --attribute-definitions \
+            AttributeName=PK,AttributeType=S \
+            AttributeName=SK,AttributeType=S \
+        --key-schema \
+            AttributeName=PK,KeyType=HASH \
+            AttributeName=SK,KeyType=RANGE \
+        --billing-mode PAY_PER_REQUEST \
+        --region "$AWS_REGION"
+
+    echo "Waiting for table to be active..."
+    aws dynamodb wait table-exists --table-name "$TABLE_NAME"
+fi
+
+echo "==> DynamoDB table ready: $TABLE_NAME"
+```
+
+### IAM Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-iam.sh
+set -e
+source "$(dirname "$0")/config.sh"
+
+echo "==> Setting up IAM role: $LAMBDA_ROLE_NAME"
+
+# Create role if it doesn't exist
+if aws iam get-role --role-name "$LAMBDA_ROLE_NAME" 2>/dev/null; then
+    echo "Role already exists"
+else
+    aws iam create-role \
+        --role-name "$LAMBDA_ROLE_NAME" \
+        --assume-role-policy-document '{
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": {"Service": "lambda.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }]
+        }'
+
+    # Wait for role to propagate
+    sleep 10
+fi
+
+# Attach basic execution policy
+aws iam attach-role-policy \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole \
+    2>/dev/null || true
+
+# Create and attach DynamoDB policy (least privilege)
+DYNAMO_POLICY_NAME="${PROJECT_NAME}-dynamo-policy"
+POLICY_DOC=$(cat <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem",
+            "dynamodb:Query",
+            "dynamodb:Scan"
+        ],
+        "Resource": "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/${TABLE_NAME}"
+    }]
+}
+EOF
+)
+
+# Create inline policy
+aws iam put-role-policy \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --policy-name "$DYNAMO_POLICY_NAME" \
+    --policy-document "$POLICY_DOC"
+
+export LAMBDA_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${LAMBDA_ROLE_NAME}"
+echo "==> IAM role ready: $LAMBDA_ROLE_ARN"
+```
+
+### Lambda Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-lambda.sh
+set -e
+source "$(dirname "$0")/config.sh"
+
+echo "==> Building Lambda function"
+
+# Build TypeScript
+npm run build
+
+# Create deployment package
+rm -f function.zip
+cd dist && zip -r ../function.zip . && cd ..
+zip -ur function.zip node_modules
+
+LAMBDA_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${LAMBDA_ROLE_NAME}"
+
+echo "==> Deploying Lambda: $LAMBDA_FUNCTION_NAME"
+
+# Check if function exists
+if aws lambda get-function --function-name "$LAMBDA_FUNCTION_NAME" 2>/dev/null; then
+    echo "Updating existing function..."
+    aws lambda update-function-code \
+        --function-name "$LAMBDA_FUNCTION_NAME" \
+        --zip-file fileb://function.zip
+
+    aws lambda update-function-configuration \
+        --function-name "$LAMBDA_FUNCTION_NAME" \
+        --runtime "$LAMBDA_RUNTIME" \
+        --handler "$LAMBDA_HANDLER" \
+        --timeout "$LAMBDA_TIMEOUT" \
+        --memory-size "$LAMBDA_MEMORY" \
+        --environment "Variables={TABLE_NAME=$TABLE_NAME}"
+else
+    echo "Creating new function..."
+    aws lambda create-function \
+        --function-name "$LAMBDA_FUNCTION_NAME" \
+        --runtime "$LAMBDA_RUNTIME" \
+        --role "$LAMBDA_ROLE_ARN" \
+        --handler "$LAMBDA_HANDLER" \
+        --timeout "$LAMBDA_TIMEOUT" \
+        --memory-size "$LAMBDA_MEMORY" \
+        --zip-file fileb://function.zip \
+        --environment "Variables={TABLE_NAME=$TABLE_NAME}"
+fi
+
+# Set concurrency limit (cost protection)
+aws lambda put-function-concurrency \
+    --function-name "$LAMBDA_FUNCTION_NAME" \
+    --reserved-concurrent-executions 50
+
+echo "==> Lambda deployed: $LAMBDA_FUNCTION_NAME"
+```
+
+### API Gateway Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-api-gateway.sh
+set -e
+source "$(dirname "$0")/config.sh"
+
+echo "==> Setting up API Gateway: $API_NAME"
+
+# Get or create REST API
+API_ID=$(aws apigateway get-rest-apis --query "items[?name=='$API_NAME'].id" --output text)
+
+if [ -z "$API_ID" ]; then
+    echo "Creating new API..."
+    API_ID=$(aws apigateway create-rest-api \
+        --name "$API_NAME" \
+        --description "API for $PROJECT_NAME" \
+        --endpoint-configuration types=REGIONAL \
+        --query 'id' --output text)
+fi
+
+echo "API ID: $API_ID"
+
+# Get root resource ID
+ROOT_ID=$(aws apigateway get-resources --rest-api-id "$API_ID" --query "items[?path=='/'].id" --output text)
+
+# Helper function to create resource
+create_resource() {
+    local parent_id=$1
+    local path_part=$2
+
+    local resource_id=$(aws apigateway get-resources --rest-api-id "$API_ID" \
+        --query "items[?pathPart=='$path_part'].id" --output text)
+
+    if [ -z "$resource_id" ]; then
+        resource_id=$(aws apigateway create-resource \
+            --rest-api-id "$API_ID" \
+            --parent-id "$parent_id" \
+            --path-part "$path_part" \
+            --query 'id' --output text)
+    fi
+    echo "$resource_id"
+}
+
+# Helper function to create method + integration
+create_method() {
+    local resource_id=$1
+    local http_method=$2
+
+    # Create method
+    aws apigateway put-method \
+        --rest-api-id "$API_ID" \
+        --resource-id "$resource_id" \
+        --http-method "$http_method" \
+        --authorization-type "NONE" \
+        2>/dev/null || true
+
+    # Create Lambda integration
+    LAMBDA_ARN="arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:${LAMBDA_FUNCTION_NAME}"
+
+    aws apigateway put-integration \
+        --rest-api-id "$API_ID" \
+        --resource-id "$resource_id" \
+        --http-method "$http_method" \
+        --type AWS_PROXY \
+        --integration-http-method POST \
+        --uri "arn:aws:apigateway:${AWS_REGION}:lambda:path/2015-03-31/functions/${LAMBDA_ARN}/invocations"
+
+    # Grant API Gateway permission to invoke Lambda
+    aws lambda add-permission \
+        --function-name "$LAMBDA_FUNCTION_NAME" \
+        --statement-id "apigateway-${http_method}-$(date +%s)" \
+        --action lambda:InvokeFunction \
+        --principal apigateway.amazonaws.com \
+        --source-arn "arn:aws:execute-api:${AWS_REGION}:${AWS_ACCOUNT_ID}:${API_ID}/*/${http_method}/*" \
+        2>/dev/null || true
+}
+
+# Create /health endpoint
+HEALTH_ID=$(create_resource "$ROOT_ID" "health")
+create_method "$HEALTH_ID" "GET"
+
+# Create /users endpoint
+USERS_ID=$(create_resource "$ROOT_ID" "users")
+create_method "$USERS_ID" "GET"
+create_method "$USERS_ID" "POST"
+
+# Create /users/{id} endpoint
+USER_ID_RESOURCE=$(create_resource "$USERS_ID" "{id}")
+create_method "$USER_ID_RESOURCE" "GET"
+create_method "$USER_ID_RESOURCE" "PUT"
+create_method "$USER_ID_RESOURCE" "DELETE"
+
+# Deploy to prod stage
+echo "Deploying to prod stage..."
+aws apigateway create-deployment \
+    --rest-api-id "$API_ID" \
+    --stage-name prod \
+    --description "Deployed by script at $(date)"
+
+# Apply throttling
+aws apigateway update-stage \
+    --rest-api-id "$API_ID" \
+    --stage-name prod \
+    --patch-operations \
+        op=replace,path=/throttling/rateLimit,value=100 \
+        op=replace,path=/throttling/burstLimit,value=200
+
+# Export API ID for other scripts
+export API_ID
+echo "==> API Gateway deployed: https://${API_ID}.execute-api.${AWS_REGION}.amazonaws.com/prod"
+```
+
+### Custom Domain Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-custom-domain.sh
+set -e
+source "$(dirname "$0")/config.sh"
+
+echo "==> Setting up custom domain: $DOMAIN_NAME"
+
+# Get API ID
+API_ID=$(aws apigateway get-rest-apis --query "items[?name=='$API_NAME'].id" --output text)
+
+if [ -z "$API_ID" ]; then
+    echo "ERROR: API not found. Run deploy-api-gateway.sh first."
+    exit 1
+fi
+
+# Create custom domain if it doesn't exist
+if aws apigateway get-domain-name --domain-name "$DOMAIN_NAME" 2>/dev/null; then
+    echo "Custom domain already exists"
+else
+    aws apigateway create-domain-name \
+        --domain-name "$DOMAIN_NAME" \
+        --regional-certificate-arn "$CERTIFICATE_ARN" \
+        --endpoint-configuration types=REGIONAL
+fi
+
+# Create base path mapping
+aws apigateway create-base-path-mapping \
+    --domain-name "$DOMAIN_NAME" \
+    --rest-api-id "$API_ID" \
+    --stage prod \
+    2>/dev/null || echo "Base path mapping already exists"
+
+# Get the target domain name for DNS
+TARGET_DOMAIN=$(aws apigateway get-domain-name \
+    --domain-name "$DOMAIN_NAME" \
+    --query 'regionalDomainName' --output text)
+
+TARGET_ZONE=$(aws apigateway get-domain-name \
+    --domain-name "$DOMAIN_NAME" \
+    --query 'regionalHostedZoneId' --output text)
+
+echo "==> Creating Route 53 record..."
+
+# Create/update DNS record
+aws route53 change-resource-record-sets \
+    --hosted-zone-id "$HOSTED_ZONE_ID" \
+    --change-batch "{
+        \"Changes\": [{
+            \"Action\": \"UPSERT\",
+            \"ResourceRecordSet\": {
+                \"Name\": \"$DOMAIN_NAME\",
+                \"Type\": \"A\",
+                \"AliasTarget\": {
+                    \"DNSName\": \"$TARGET_DOMAIN\",
+                    \"HostedZoneId\": \"$TARGET_ZONE\",
+                    \"EvaluateTargetHealth\": false
+                }
+            }
+        }]
+    }"
+
+echo "==> Custom domain ready: https://$DOMAIN_NAME"
+echo "Note: DNS propagation may take a few minutes"
+```
+
+### Master Deploy Script
+
+```bash
+#!/bin/bash
+# scripts/deploy-all.sh - Deploy everything in the correct order
+set -e
+
+SCRIPT_DIR="$(dirname "$0")"
+
+echo "=========================================="
+echo "  Full Deployment - $(date)"
+echo "=========================================="
+
+"$SCRIPT_DIR/deploy-dynamodb.sh"
+echo ""
+
+"$SCRIPT_DIR/deploy-iam.sh"
+echo ""
+
+"$SCRIPT_DIR/deploy-lambda.sh"
+echo ""
+
+"$SCRIPT_DIR/deploy-api-gateway.sh"
+echo ""
+
+"$SCRIPT_DIR/deploy-custom-domain.sh"
+echo ""
+
+echo "=========================================="
+echo "  Deployment Complete!"
+echo "=========================================="
+echo ""
+echo "Your API is available at:"
+echo "  https://$DOMAIN_NAME"
+echo ""
+echo "Test with:"
+echo "  curl https://$DOMAIN_NAME/health"
+```
+
+### Using the Scripts
+
+```bash
+# Make scripts executable
+chmod +x scripts/*.sh
+
+# Edit config.sh with your settings
+vim scripts/config.sh
+
+# Deploy everything
+./scripts/deploy-all.sh
+
+# Or deploy individual components
+./scripts/deploy-lambda.sh      # Just update Lambda code
+./scripts/deploy-api-gateway.sh # Just update API Gateway
+```
+
+### Ask Claude to Generate Scripts
+
+> "Help me create a deploy script for [component] that:
+> - Checks if the resource exists before creating
+> - Uses variables from config.sh
+> - Handles errors gracefully
+> - Outputs the resource ARN when done"
+
+---
+
+## Part 8: Working with Claude
 
 ### What Claude Does Well
 
