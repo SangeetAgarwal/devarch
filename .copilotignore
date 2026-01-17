@@ -1,0 +1,148 @@
+# .copilotignore
+# Files and directories to exclude from GitHub Copilot context
+# This helps keep context focused and reduces token usage
+
+# Build outputs
+**/obj/
+**/bin/
+**/dist/
+**/build/
+**/out/
+**/.next/
+**/.nuxt/
+**/.output/
+
+# Dependencies
+**/node_modules/
+**/packages/
+**/vendor/
+**/.pnp/
+**/.pnp.js
+
+# Generated files
+**/*.Designer.cs
+**/*.designer.cs
+**/*.generated.cs
+**/*.g.cs
+**/*.g.i.cs
+**/Generated/
+**/generated/
+
+# Test data and databases
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/test-data/
+**/testdata/
+
+# Archived documentation
+**/docs/context/archived/
+**/docs/**/archived/
+
+# Environment files and secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/*.key
+**/*.pem
+**/*.pfx
+**/*.p12
+**/secrets/
+**/Secrets/
+
+# Package lock files (large)
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/packages.lock.json
+
+# Media files
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.ico
+**/*.mp4
+**/*.mov
+**/*.avi
+**/*.pdf
+
+# IDE and editor files
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.suo
+**/*.user
+**/*.sln.docstates
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+**/.Spotlight-V100/
+**/.Trashes/
+
+# Logs
+**/logs/
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Cache directories
+**/.cache/
+**/.parcel-cache/
+**/.pytest_cache/
+**/__pycache__/
+**/*.pyc
+**/.sass-cache/
+
+# Coverage reports
+**/coverage/
+**/.nyc_output/
+**/*.lcov
+
+# Temporary files
+**/tmp/
+**/temp/
+**/.tmp/
+**/.temp/
+
+# Old session files (keep only current year)
+**/docs/context/session-2025*.md
+**/docs/context/session-2024*.md
+**/docs/context/session-2023*.md
+
+# Git files
+**/.git/
+**/.gitattributes
+
+# CI/CD artifacts
+**/.github/workflows/
+**/.azuredevops/
+
+# Backup files
+**/*.bak
+**/*.backup
+**/*.old
+**/*~
+
+# Minified files
+**/*.min.js
+**/*.min.css
+
+# Source maps
+**/*.map
+
+# Compiled TypeScript
+**/*.js.map
+**/*.d.ts.map
+
+# Documentation build outputs
+**/docs/_site/
+**/docs/.vuepress/dist/
+
+# Dependency locks (keep for reference but exclude from context)
+**/composer.lock
+**/Gemfile.lock
+**/poetry.lock
