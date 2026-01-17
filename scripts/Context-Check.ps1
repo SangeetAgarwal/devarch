@@ -71,7 +71,10 @@ try {
     $sessionDir = "docs/context"
     $today = Get-Date -Format "yyyyMMdd"
     
-    $currentSession = Get-ChildItem -Path "$sessionDir/session-$today-*-$gitBranch.md" -ErrorAction SilentlyContinue |
+    # Sanitize branch name for filename (replace slashes with dashes)
+    $branchSafe = $gitBranch -replace '/', '-'
+    
+    $currentSession = Get-ChildItem -Path "$sessionDir/session-$today-*-$branchSafe.md" -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
 

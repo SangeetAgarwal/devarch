@@ -75,6 +75,9 @@ try {
         exit 1
     }
 
+    # Sanitize branch name for filename (replace slashes with dashes)
+    $branchSafe = $gitBranch -replace '/', '-'
+
     Write-Info "Branch: $gitBranch"
     Write-Info "Topic: $Topic"
 

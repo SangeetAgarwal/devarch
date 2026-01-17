@@ -80,13 +80,16 @@ try {
     $sessionDir = "docs/context"
     $today = Get-Date -Format "yyyyMMdd"
     
-    $currentSession = Get-ChildItem -Path "$sessionDir/session-$today-*-$gitBranch.md" -ErrorAction SilentlyContinue |
+    # Sanitize branch name for filename (replace slashes with dashes)
+    $branchSafe = $gitBranch -replace '/', '-'
+    
+    $currentSession = Get-ChildItem -Path "$sessionDir/session-$today-*-$branchSafe.md" -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
 
     if (-not $currentSession) {
         Write-Info "No session file found for today. Looking for recent sessions..."
-        $currentSession = Get-ChildItem -Path "$sessionDir/session-*-$gitBranch.md" -ErrorAction SilentlyContinue |
+        $currentSession = Get-ChildItem -Path "$sessionDir/session-*-$branchSafe.md" -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
     }

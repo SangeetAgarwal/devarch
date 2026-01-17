@@ -99,7 +99,10 @@ try {
             exit 1
         }
         
-        $PlanFile = "docs/work/$gitBranch/implementation-plan.md"
+        # Sanitize branch name for path (replace slashes with dashes)
+        $branchSafe = $gitBranch -replace '/', '-'
+        
+        $PlanFile = "docs/work/$branchSafe/implementation-plan.md"
     }
 
     if (-not (Test-Path $PlanFile)) {

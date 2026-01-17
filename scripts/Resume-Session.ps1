@@ -60,6 +60,9 @@ try {
 
     Write-Info "Branch: $gitBranch"
 
+    # Sanitize branch name for filename (replace slashes with dashes)
+    $branchSafe = $gitBranch -replace '/', '-'
+
     # Context cleanup reminder
     Write-Host ""
     Write-Header "Pre-Resume Context Cleanup"
@@ -78,7 +81,7 @@ try {
 
     # Find latest session file
     $sessionDir = "docs/context"
-    $latestSession = Get-ChildItem -Path "$sessionDir/session-*-$gitBranch.md" -ErrorAction SilentlyContinue |
+    $latestSession = Get-ChildItem -Path "$sessionDir/session-*-$branchSafe.md" -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
 

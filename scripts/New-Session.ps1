@@ -69,6 +69,9 @@ try {
         exit 1
     }
 
+    # Sanitize branch name for filename (replace slashes with dashes)
+    $branchSafe = $gitBranch -replace '/', '-'
+
     Write-Info "Current branch: $gitBranch"
 
     # Setup paths
@@ -76,7 +79,7 @@ try {
     $today = Get-Date -Format "yyyyMMdd"
     $time = Get-Date -Format "HHmm"
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
-    $sessionFile = "$sessionDir/session-$today-$time-$gitBranch.md"
+    $sessionFile = "$sessionDir/session-$today-$time-$branchSafe.md"
     $templateFile = "$sessionDir/.session-template.md"
 
     # Ensure session directory exists
@@ -115,7 +118,7 @@ try {
     }
 
     # Find previous session for this branch
-    $previousSession = Get-ChildItem -Path "$sessionDir/session-*-$gitBranch.md" -ErrorAction SilentlyContinue | 
+    $previousSession = Get-ChildItem -Path "$sessionDir/session-*-$branchSafe.md" -ErrorAction SilentlyContinue | 
         Sort-Object LastWriteTime -Descending | 
         Select-Object -First 1
 
@@ -126,7 +129,7 @@ try {
         # Create new session file from template
         $sessionContent = Get-Content -Path $templateFile -Raw
         $sessionContent = $sessionContent -replace "{{DATE}}", $today
-        $sessionContent = $sessionContent -replace "{{BRANCH}}", $gitBranch
+        $sessionContent = $sessionContent -replace "{{BRANCH}}", $branchSafe
         $sessionContent = $sessionContent -replace "{{TIMESTAMP}}", $timestamp
 
         Set-Content -Path $sessionFile -Value $sessionContent -Encoding UTF8
