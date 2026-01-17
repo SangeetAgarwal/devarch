@@ -1,0 +1,36 @@
+# Build outputs
+obj/
+bin/
+dist/
+build/
+out/
+
+# Dependencies
+node_modules/
+packages/
+vendor/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Test artifacts
+*.test.md
+test-*.md
