@@ -8,6 +8,8 @@ This repository contains practical guidance for software developers and architec
 
 The patterns here emerged from real-world project experience, not theory. They address the actual challenges developers face when integrating AI into their daily workflow.
 
+This is a living repository. Patterns are applied to real projects, lessons are brought back, and the workflow evolves. If something doesn't survive contact with a real codebase, it gets revised or removed.
+
 ## Why This Exists
 
 AI-assisted development is powerful but introduces new challenges:
@@ -16,28 +18,28 @@ AI-assisted development is powerful but introduces new challenges:
 - **Session continuity** — Work spans multiple sessions; AI doesn't remember
 - **Decision traceability** — "Why did we do it this way?" gets lost
 - **Knowledge transfer** — Onboarding AI to your codebase takes effort
+- **Intent gets lost** — AI plans without clear directives produce generic results
 
 Traditional development practices don't fully address these issues. This repo provides patterns that do.
 
-## Contents
+## Philosophy
 
-### Workflow Guides
+1. **Documentation is memory** — What you write down survives; what stays in AI context doesn't
+2. **Human intent first** — Specifications capture what you want before AI plans how to build it
+3. **Progressive capture** — Document as you go, not at the end
+4. **Branch = Work folder** — Keep related artifacts together
+5. **Explicit over implicit** — AI works better with clear structure and instructions
+6. **Learn by building** — Apply patterns to real projects, bring lessons back, evolve the workflow
 
-Choose the guide that matches your tooling:
+## Guides
 
-| Tool / Environment | Guide | Best For |
-|--------------------|-------|----------|
-| **Claude Code CLI** | [Claude Code Workflow Guide](docs/claude-code-workflow-guide.md) | Terminal-first development, automatic hooks, integrated workflow |
-| **GitHub Copilot + Visual Studio 2026** | [Copilot Workflow Guide](docs/copilot-workflow-guide.md) | Windows development, .NET/C# projects, Azure DevOps integration |
-
-Both workflows provide **100% functional equivalence** — same patterns, same results, different tools.
-
-### Additional Guides
-
-| Guide | Description |
-|-------|-------------|
-| [AWS Serverless Backend Guide](docs/aws-serverless-backend-guide.md) | Let AI build your API: Lambda, API Gateway, DynamoDB, custom domains, hardening |
-| [Architecture Decision Records](docs/architecture-decision-records-guide.md) | When and how to document design decisions with ADRs |
+| Guide                                                                        | Description                                                                                                   |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [Claude Code Workflow](docs/claude-code-workflow-guide.md)                   | Terminal-first development with automatic hooks, native skill loading, and SummonAIKit + Context7 integration |
+| [Copilot Workflow](docs/copilot-workflow-guide.md)                           | PowerShell-driven workflow for Visual Studio 2026, .NET/C# projects, and Azure DevOps                         |
+| [Adopting the Copilot Workflow](docs/adopting-copilot-workflow.md)           | Step-by-step setup for applying the Copilot workflow to new or existing projects                              |
+| [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)               | Let AI build your API: Lambda, API Gateway, DynamoDB, custom domains, hardening                               |
+| [Architecture Decision Records](docs/architecture-decision-records-guide.md) | When and how to document design decisions with ADRs                                                           |
 
 ### Key Topics Covered
 
@@ -46,6 +48,43 @@ Both workflows provide **100% functional equivalence** — same patterns, same r
 - **Work documentation** — Patterns for preserving decisions and progress
 - **Project organization** — Folder structures that work with AI tools
 - **Hooks and automation** — Reducing manual overhead
+
+## Conventions
+
+Conventions are reusable patterns this repo documents and follows. This section grows as new patterns prove themselves in real projects.
+
+| Convention                             | What It Does                                                                                                                                                            | Guide                                           |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **specification.md**                   | Human-authored directive capturing intent, constraints, and decisions before the LLM generates an implementation plan. Lives at `docs/work/{feature}/specification.md`. | [guide](docs/guides/specification.md)           |
+| **SummonAIKit + Context7 scaffolding** | Auto-generates `CLAUDE.md`, skills, and hooks from your codebase (SummonAIKit). Provides live, version-specific documentation lookup during sessions (Context7).        | [guide](docs/guides/scaffolding.md)             |
+| **Skill-building standards**           | Guidelines for creating custom workflow skills aligned with Anthropic's official conventions — YAML frontmatter, progressive disclosure, trigger phrases.               | [guide](docs/guides/skill-standards.md)         |
+| **Skill template**                     | Starter template for new skills.                                                                                                                                        | [template](docs/guides/skill-template/SKILL.md) |
+
+## Dual Workflow Approach
+
+This repository supports two complementary workflows:
+
+### Claude Code CLI Workflow
+
+- **Automation**: Automatic hooks for session management
+- **Integration**: Native CLI commands (`write work summary`, `/context`)
+- **Scaffolding**: SummonAIKit + Context7 for project context and live documentation
+- **Best for**: Terminal-based development, quick automation
+
+### GitHub Copilot + Visual Studio Workflow
+
+- **Automation**: PowerShell scripts for session management
+- **Integration**: Visual Studio 2026, Azure DevOps pipelines
+- **Best for**: Windows development, .NET ecosystem, enterprise environments
+
+Both workflows share the same core principles — session continuity, work folders, ADRs — adapted to each tool's strengths:
+
+- Session summaries for context continuity
+- Work folders matching branches
+- ADRs for architectural decisions
+- Implementation plans for progress tracking
+- Specifications for capturing human intent
+- Progressive documentation throughout development
 
 ## Quick Start
 
@@ -81,6 +120,7 @@ Get-ChildItem .\scripts\*.ps1
 ```
 
 **Prerequisites:**
+
 - PowerShell 5.1+ (pre-installed on Windows)
 - Git
 - Visual Studio 2026 with GitHub Copilot extensions
@@ -187,7 +227,7 @@ your-project/
 ├── .github/
 │   └── copilot-instructions.md          # Project instructions for Copilot
 ├── .copilotignore                        # Context optimization
-├── scripts/                              # 8 PowerShell automation scripts
+├── scripts/                              # PowerShell automation scripts
 │   ├── New-Session.ps1
 │   ├── Resume-Session.ps1
 │   ├── End-Session.ps1
@@ -204,14 +244,14 @@ your-project/
 │   ├── architecture/
 │   │   └── adrs/                         # Architecture decisions
 │   └── work/
-│       └── {branch-name}/                # Work folders (match branch names)
+│       └── {branch-name}/               # Work folders (match branch names)
 │           ├── README.md
 │           ├── implementation-plan.md
 │           └── context/                  # Work summaries
 └── [your existing code]
 ```
 
-The scripts work in any repository - they just manage documentation and generate Copilot prompts. Your actual code stays in your existing structure.
+The scripts work in any repository — they manage documentation and generate Copilot prompts. Your actual code stays in your existing structure.
 
 ### Next Steps After Setup
 
@@ -220,33 +260,47 @@ The scripts work in any repository - they just manage documentation and generate
 3. Use `.\scripts\Context-Check.ps1` regularly to monitor context
 4. Generate work summaries after significant milestones with `.\scripts\New-WorkSummary.ps1`
 
-## Philosophy
+## Full Project Structure
 
-1. **Documentation is memory** — What you write down survives; what stays in AI context doesn't
-2. **Progressive capture** — Document as you go, not at the end
-3. **Branch = Work folder** — Keep related artifacts together
-4. **Explicit over implicit** — AI works better with clear structure and instructions
+This shows the complete structure including both workflow toolchains and all conventions:
 
-## Dual Workflow Approach
+```
+your-project/
+├── .claude/                              # Claude Code configuration (CLI workflow)
+│   ├── CLAUDE.md                         # Project overview (generated by SummonAIKit)
+│   ├── settings.json                     # Hooks and permissions
+│   └── skills/                           # Tech-specific and custom skills
+├── .github/
+│   └── copilot-instructions.md           # Project instructions (Copilot workflow)
+├── .copilotignore                        # Context optimization (Copilot workflow)
+├── scripts/                              # PowerShell automation (Copilot workflow)
+├── docs/
+│   ├── context/                          # Session summaries
+│   │   ├── .session-template.md
+│   │   └── session-*.md
+│   ├── architecture/
+│   │   └── adrs/                         # Architecture decision records
+│   ├── guides/                           # Workflow conventions and standards
+│   │   ├── scaffolding.md
+│   │   ├── specification.md
+│   │   ├── skill-standards.md
+│   │   └── skill-template/
+│   │       └── SKILL.md
+│   ├── references/                       # Reference material (PDFs, etc.)
+│   └── work/
+│       └── {feature-name}/               # Work folders (match branch names)
+│           ├── specification.md           # Human intent
+│           ├── implementation-plan.md     # LLM-generated plan
+│           ├── README.md                  # Retrospective (written after completion)
+│           └── context/                   # Work summaries
+└── [your existing code]
+```
 
-This repository supports two complementary workflows:
+## References
 
-### Claude Code CLI Workflow
-- **Automation**: Automatic hooks for session management
-- **Integration**: Native CLI commands (`write work summary`, `/context`)
-- **Best for**: Terminal-based development, quick automation
-
-### GitHub Copilot + Visual Studio Workflow
-- **Automation**: PowerShell scripts for session management
-- **Integration**: Visual Studio 2026, Azure DevOps pipelines
-- **Best for**: Windows development, .NET ecosystem, enterprise environments
-
-**Both workflows share the same core principles:**
-- Session summaries for context continuity
-- Work folders matching branches
-- ADRs for architectural decisions
-- Implementation plans for progress tracking
-- Progressive documentation throughout development
+| Resource                                                       | Location                             |
+| -------------------------------------------------------------- | ------------------------------------ |
+| Anthropic's Complete Guide to Building Skills for Claude (PDF) | [docs/references/](docs/references/) |
 
 ## Contributing
 
@@ -258,4 +312,4 @@ MIT
 
 ---
 
-*These patterns evolved from building [Sharpee](https://github.com/ChicagoDave/sharpee), a parser-based interactive fiction engine, using AI-assisted development.*
+_Built by [Sangeet Agarwal](https://github.com/SangeetAgarwal)._
