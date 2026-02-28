@@ -105,6 +105,7 @@ Create `.claude/CLAUDE.md`:
 - After any file system operation that produces multiple files (scaffolding, copying, extracting), list the results to confirm before continuing.
 - After scaffolding, verify all expected config files exist (env types, tsconfig, vite config, etc.) before proceeding to feature code.
 - When the specification is ambiguous, stop and ask — do not assume.
+- When implementing a feature not already in the specification, update the active specification to include it before or alongside the code change.
 ```
 
 > The **Rules** section is critical. Without it, Claude Code will say "feature complete" when the code is done — even if external services haven't been configured. The rules redefine "complete" to mean "code is done and all human tasks have been surfaced."
