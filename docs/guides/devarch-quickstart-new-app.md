@@ -105,7 +105,7 @@ Create `.claude/CLAUDE.md`:
 - After any file system operation that produces multiple files (scaffolding, copying, extracting), list the results to confirm before continuing.
 - After scaffolding, verify all expected config files exist (env types, tsconfig, vite config, etc.) before proceeding to feature code.
 - When the specification is ambiguous, stop and ask — do not assume.
-- When implementing a feature not already in the specification, update the active specification to include it before or alongside the code change.
+- When implementing a feature not already in the specification, update the specification to include it before or alongside the code change.
 ```
 
 > The **Rules** section is critical. Without it, Claude Code will say "feature complete" when the code is done — even if external services haven't been configured. The rules redefine "complete" to mean "code is done and all human tasks have been surfaced."
@@ -241,6 +241,38 @@ With the implementation plan reviewed and scaffolding in place, build your app i
 
 ---
 
+## Step 10: Verify Against Specification
+
+After the build is complete, verify the implementation against the specification. Code is cheap — the LLM generates it in minutes. Confidence that it does what you intended is the bottleneck.
+
+### Layer 1: Tests
+
+Create a test specification in a new work folder (e.g., `docs/work/v1_1-tests/specification.md`). Focus on logic that breaks silently:
+
+- **Validation logic** — range checks, required fields, format rules
+- **Calculations** — derived values, display formatting
+- **Business rules** — state transitions, time ordering, access control
+- **Auth guards** — protected routes, session handling
+
+Tests are living documentation. A new developer reads the test suite and knows what the app does.
+
+### Layer 2: Specification Verification
+
+Walk the original specification feature by feature. For each requirement, confirm the implementation satisfies it:
+
+```markdown
+| Spec Requirement                          | Status | Notes                      |
+| ----------------------------------------- | ------ | -------------------------- |
+| Landing page shows title and subtitle     | ✅     |                            |
+| Social login with Google                  | ✅     |                            |
+| History shows reverse chronological order | ✅     |                            |
+| Confirm before delete                     | ❌     | Missing — added to backlog |
+```
+
+Any ❌ becomes a bug fix or goes into the next work folder. The specification is the source of truth for what "done" means.
+
+---
+
 ## Summary
 
 | Step | Action                                                 | Produces                                                     |
@@ -255,6 +287,7 @@ With the implementation plan reviewed and scaffolding in place, build your app i
 | 7b   | Resolve gaps; update specification                     | Complete specification with all decisions                    |
 | 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                            |
 | 9    | Build in sessions with summaries                       | Working application                                          |
+| 10   | Verify against specification                           | Test suite + specification verification checklist            |
 
 ## What NOT to Do at This Stage
 

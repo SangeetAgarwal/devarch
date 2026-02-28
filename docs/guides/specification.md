@@ -285,3 +285,54 @@ After a few projects, review which decisions keep showing up as gaps. Add those 
 Six months from now, someone looks at the project and asks: "Why Vercel? Why 20 entries per page? Why no tests?" If those decisions are in the specification, the answer is right there. If they're buried in a chat transcript, they're gone.
 
 The specification is the single source of truth. Gap resolution keeps it that way.
+
+---
+
+## Verification
+
+### What It Is
+
+Code is cheap. The LLM generates it in minutes. Verification — knowing the code does what you intended — is expensive. The specification isn't just input to the LLM. It's the acceptance criteria. After the build, the specification becomes the checklist you verify against.
+
+### When It Happens
+
+After the build is complete and before you ship:
+
+```
+Specification → Implementation Plan → Build → Verify against specification → Ship
+```
+
+### Two Layers of Verification
+
+**Layer 1: Tests**
+
+Tests prove the code works correctly. Focus on logic that can break silently:
+
+| Category       | What to Test                                     | Why                         |
+| -------------- | ------------------------------------------------ | --------------------------- |
+| Validation     | Range checks, required fields, format rules      | Silent data corruption      |
+| Calculations   | Derived values, formatting                       | User sees wrong information |
+| Business rules | State transitions, time ordering, access control | Core domain integrity       |
+| Auth guards    | Protected routes, session handling               | Security                    |
+
+Tests are living documentation. A new developer reads the test suite and knows what the app does, not just how it's structured.
+
+**Layer 2: Specification Verification**
+
+After tests pass, walk the specification feature by feature and verify the implementation satisfies each requirement. This can be manual (for small apps) or automated (for larger systems):
+
+```markdown
+| Spec Requirement                          | Status | Notes                      |
+| ----------------------------------------- | ------ | -------------------------- |
+| Landing page shows title and subtitle     | ✅     |                            |
+| Social login with Google                  | ✅     |                            |
+| History shows reverse chronological order | ✅     |                            |
+| Edit and delete from detail view          | ✅     |                            |
+| Confirm before delete                     | ❌     | Missing — added to backlog |
+```
+
+The specification is the source of truth for what "done" means. If it's in the spec and not in the app, it's not done.
+
+### Why This Matters
+
+In a world where code can be recreated instantly, confidence is the bottleneck. Teams that ship fastest aren't generating the most code — they're the ones with specifications they trust and tests that verify them. The specification defines what correct looks like. The tests prove it.
