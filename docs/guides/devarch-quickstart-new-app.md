@@ -247,18 +247,46 @@ With the implementation plan reviewed and scaffolding in place, build your app i
 
 After the build is complete, verify the implementation against the specification. Code is cheap — the LLM generates it in minutes. Confidence that it does what you intended is the bottleneck.
 
-### Layer 1: Tests
+Verification has three layers. Each catches different classes of bugs. Create a separate work folder for each (e.g., `docs/work/v1_1-tests/`, `docs/work/v1_2-e2e/`).
 
-Create a test specification in a new work folder (e.g., `docs/work/v1_1-tests/specification.md`). Focus on logic that breaks silently:
+### Layer 1: Unit & Integration Tests
 
-- **Validation logic** — range checks, required fields, format rules
-- **Calculations** — derived values, display formatting
-- **Business rules** — state transitions, time ordering, access control
-- **Auth guards** — protected routes, session handling
+Test logic that runs inside the application — no external services.
 
-Tests are living documentation. A new developer reads the test suite and knows what the app does.
+| Category           | What to Test                                     | Why                         |
+| ------------------ | ------------------------------------------------ | --------------------------- |
+| Validation         | Range checks, required fields, format rules      | Silent data corruption      |
+| Calculations       | Derived values, display formatting               | User sees wrong information |
+| Business rules     | State transitions, time ordering, access control | Core domain integrity       |
+| Auth guards        | Protected routes, session handling               | Security                    |
+| Component behavior | Forms, navigation, conditional rendering         | UI contract with user       |
 
-### Layer 2: Specification Verification
+Mock external dependencies (databases, APIs, auth providers). These tests prove the application sends the right calls — not that the external service accepts them.
+
+### Layer 2: E2E Data Layer Tests
+
+Test that the real external service accepts what the application sends. These close the gap between "the app calls the API correctly" (Layer 1) and "the database actually enforces the rules" (Layer 2).
+
+Run these against a **dedicated test environment** — never production.
+
+| Category              | What to Test                                             | Why                                                  |
+| --------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| CRUD operations       | Insert, select, update, delete against real database     | Proves schema accepts app's data shapes              |
+| Constraints           | CHECK constraints, NOT NULL, uniqueness                  | Proves database rejects invalid data                 |
+| Security policies     | Row-level security, access control, cross-user isolation | Proves one user cannot access another's data         |
+| Auto-generated values | IDs, timestamps, triggers                                | Proves database defaults and triggers fire correctly |
+| Data shape            | Returned columns match what the app expects              | Catches schema drift                                 |
+
+**Key decisions for E2E specs:**
+
+- **API-level, not browser-level.** Call the database client directly — no DOM, no UI framework. Fast and focused on the data layer.
+- **Separate credentials.** Use dedicated test environment variables (e.g., `.env.test.local`). Never reuse production credentials.
+- **Programmatic auth.** Production may use OAuth (Google, Facebook), but tests need programmatic login (email/password, API keys, service tokens). Configure the test environment to support this.
+- **Service role for cleanup.** Use an admin/service role for test setup and teardown that bypasses security policies. This ensures cleanup succeeds even if a test breaks the user session.
+- **Two users for security tests.** User A creates data, User B tries to access it. Service role verifies the data actually exists. This proves security policies work.
+- **Full isolation.** Each test creates its own data and cleans it up. No test depends on another test's data.
+
+### Layer 3: Specification Verification
 
 Walk the original specification feature by feature. For each requirement, confirm the implementation satisfies it:
 
@@ -273,23 +301,34 @@ Walk the original specification feature by feature. For each requirement, confir
 
 Any ❌ becomes a bug fix or goes into the next work folder. The specification is the source of truth for what "done" means.
 
+### When to Use Which Layer
+
+Not every app needs all three layers. Match the verification to the architecture:
+
+| App Type                                 | Layer 1  | Layer 2                                                 | Layer 3 |
+| ---------------------------------------- | -------- | ------------------------------------------------------- | ------- |
+| Static site (no backend)                 | Optional | Skip                                                    | Yes     |
+| Frontend + mocked API                    | Yes      | Skip until API exists                                   | Yes     |
+| Frontend + database (Supabase, Firebase) | Yes      | Yes — database constraints and security policies matter | Yes     |
+| Full stack with API server               | Yes      | Yes — test API endpoints against real database          | Yes     |
+
 ---
 
 ## Summary
 
-| Step | Action                                                 | Produces                                                     |
-| ---- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| 1    | Create repository on GitHub and clone locally          | Empty repo                                                   |
-| 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/ |
-| 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                            |
-| 4    | Create minimal CLAUDE.md                               | .claude/CLAUDE.md                                            |
-| 5    | Write the specification                                | docs/work/v1-core/specification.md                           |
-| 6    | Commit and push                                        | Clean starting point in version control                      |
-| 7    | Open Claude Code; generate implementation plan         | docs/work/v1-core/implementation-plan.md                     |
-| 7b   | Resolve gaps; update specification                     | Complete specification with all decisions                    |
-| 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                            |
-| 9    | Build in sessions with summaries                       | Working application                                          |
-| 10   | Verify against specification                           | Test suite + specification verification checklist            |
+| Step | Action                                                 | Produces                                                                           |
+| ---- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| 1    | Create repository on GitHub and clone locally          | Empty repo                                                                         |
+| 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                       |
+| 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                                                  |
+| 4    | Create minimal CLAUDE.md                               | .claude/CLAUDE.md                                                                  |
+| 5    | Write the specification                                | docs/work/v1-core/specification.md                                                 |
+| 6    | Commit and push                                        | Clean starting point in version control                                            |
+| 7    | Open Claude Code; generate implementation plan         | docs/work/v1-core/implementation-plan.md                                           |
+| 7b   | Resolve gaps; update specification                     | Complete specification with all decisions                                          |
+| 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                                                  |
+| 9    | Build in sessions with summaries                       | Working application                                                                |
+| 10   | Verify against specification                           | Unit/integration tests, E2E data layer tests, specification verification checklist |
 
 ## What NOT to Do at This Stage
 
@@ -304,6 +343,7 @@ Any ❌ becomes a bug fix or goes into the next work folder. The specification i
 | Resource                                   | Location                                  |
 | ------------------------------------------ | ----------------------------------------- |
 | DevArch repo                               | https://github.com/SangeetAgarwal/devarch |
+| DevArch philosophy                         | docs/guides/devarch-philosophy.md         |
 | Specification convention guide             | docs/guides/specification.md              |
 | Scaffolding guide (SummonAIKit + Context7) | docs/guides/scaffolding.md                |
 | Skill-building standards                   | docs/guides/skill-standards.md            |

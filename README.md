@@ -24,18 +24,20 @@ Traditional development practices don't fully address these issues. This repo pr
 
 ## Philosophy
 
-1. **Documentation is memory** — What you write down survives; what stays in AI context doesn't
-2. **Human intent first** — Specifications capture what you want before AI plans how to build it
-3. **Progressive capture** — Document as you go, not at the end
-4. **Branch = Work folder** — Keep related artifacts together
-5. **Explicit over implicit** — AI works better with clear structure and instructions
-6. **Learn by building** — Apply patterns to real projects, bring lessons back, evolve the workflow
+1. **Specifications over tests as the design step** — In agentic development, the specification replaces TDD's forcing function. The human designs at the specification level; the LLM implements; tests verify. [Full philosophy →](docs/guides/devarch-philosophy.md)
+2. **Documentation is memory** — What you write down survives; what stays in AI context doesn't
+3. **Human intent first** — Specifications capture what you want before AI plans how to build it
+4. **Progressive capture** — Document as you go, not at the end
+5. **Branch = Work folder** — Keep related artifacts together
+6. **Explicit over implicit** — AI works better with clear structure and instructions
+7. **Learn by building** — Apply patterns to real projects, bring lessons back, evolve the workflow
 
 ## Guides
 
 | Guide                                                                        | Description                                                                                                   |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [Claude Code Workflow](docs/claude-code-workflow-guide.md)                   | Terminal-first development with automatic hooks, native skill loading, and SummonAIKit + Context7 integration |
+| [DevArch Philosophy](docs/guides/devarch-philosophy.md)                      | Why specification-driven development makes sense in the agentic era — and why tests come after the build      |
 | [Copilot Workflow](docs/copilot-workflow-guide.md)                           | PowerShell-driven workflow for Visual Studio 2026, .NET/C# projects, and Azure DevOps                         |
 | [Adopting the Copilot Workflow](docs/adopting-copilot-workflow.md)           | Step-by-step setup for applying the Copilot workflow to new or existing projects                              |
 | [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)               | Let AI build your API: Lambda, API Gateway, DynamoDB, custom domains, hardening                               |
@@ -53,15 +55,15 @@ Traditional development practices don't fully address these issues. This repo pr
 
 Conventions are reusable patterns this repo documents and follows. This section grows as new patterns prove themselves in real projects.
 
-| Convention                             | What It Does                                                                                                                                                                                                             | Guide                                                |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
-| **specification.md**                   | Human-authored directive capturing intent, constraints, and decisions before the LLM generates an implementation plan. Lives at `docs/work/{feature}/specification.md`.                                                  | [guide](docs/guides/specification.md)                |
-| **SummonAIKit + Context7 scaffolding** | Auto-generates `CLAUDE.md`, skills, and hooks from your codebase (SummonAIKit). Provides live, version-specific documentation lookup during sessions (Context7).                                                         | [guide](docs/guides/scaffolding.md)                  |
-| **Skill-building standards**           | Guidelines for creating custom workflow skills aligned with Anthropic's official conventions — YAML frontmatter, progressive disclosure, trigger phrases.                                                                | [guide](docs/guides/skill-standards.md)              |
-| **Skill template**                     | Starter template for new skills.                                                                                                                                                                                         | [template](docs/guides/skill-template/SKILL.md)      |
-| **Gap resolution**                     | After the LLM generates an implementation plan, review the gaps it surfaces, make decisions, and update the specification. The spec remains the single source of truth.                                                  | [guide](docs/guides/specification.md#gap-resolution) |
-| **External setup**                     | Explicitly list manual steps the human must complete outside of Claude Code — creating accounts, configuring services, copying API keys. Prevents the LLM from building against services that don't exist.               | [guide](docs/guides/specification.md#external-setup) |
-| **Verification**                       | After the build, verify the implementation against the specification. Two layers: tests (prove code works) and specification verification (prove it matches requirements). Code is cheap — confidence is the bottleneck. | [guide](docs/guides/specification.md#verification)   |
+| Convention                             | What It Does                                                                                                                                                                                                                                                                                                         | Guide                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **specification.md**                   | Human-authored directive capturing intent, constraints, and decisions before the LLM generates an implementation plan. Lives at `docs/work/{feature}/specification.md`.                                                                                                                                              | [guide](docs/guides/specification.md)                |
+| **SummonAIKit + Context7 scaffolding** | Auto-generates `CLAUDE.md`, skills, and hooks from your codebase (SummonAIKit). Provides live, version-specific documentation lookup during sessions (Context7).                                                                                                                                                     | [guide](docs/guides/scaffolding.md)                  |
+| **Skill-building standards**           | Guidelines for creating custom workflow skills aligned with Anthropic's official conventions — YAML frontmatter, progressive disclosure, trigger phrases.                                                                                                                                                            | [guide](docs/guides/skill-standards.md)              |
+| **Skill template**                     | Starter template for new skills.                                                                                                                                                                                                                                                                                     | [template](docs/guides/skill-template/SKILL.md)      |
+| **Gap resolution**                     | After the LLM generates an implementation plan, review the gaps it surfaces, make decisions, and update the specification. The spec remains the single source of truth.                                                                                                                                              | [guide](docs/guides/specification.md#gap-resolution) |
+| **External setup**                     | Explicitly list manual steps the human must complete outside of Claude Code — creating accounts, configuring services, copying API keys. Prevents the LLM from building against services that don't exist.                                                                                                           | [guide](docs/guides/specification.md#external-setup) |
+| **Verification**                       | After the build, verify the implementation against the specification. Three layers: unit/integration tests (prove app logic), E2E data layer tests (prove database constraints and security policies), and specification verification (prove it matches requirements). Code is cheap — confidence is the bottleneck. | [guide](docs/guides/specification.md#verification)   |
 
 ## Dual Workflow Approach
 
