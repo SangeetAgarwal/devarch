@@ -26,7 +26,6 @@ Create a new repository on GitHub for your application.
 6. Click Create repository
 
 Clone it locally:
-
 ```bash
 git clone https://github.com/your-username/my-app.git
 cd my-app
@@ -37,7 +36,6 @@ cd my-app
 ## Step 2: Create the DevArch Directory Structure
 
 DevArch organizes documentation alongside your code. Create the directory structure before writing any code.
-
 ```bash
 mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
 ```
@@ -56,7 +54,6 @@ mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
 ## Step 3: Copy the Session Template
 
 If you have the DevArch repo cloned locally, copy the session summary template:
-
 ```bash
 cp /path/to/devarch/docs/context/.session-template.md docs/context/.session-template.md
 ```
@@ -70,7 +67,6 @@ Session summaries are how you maintain continuity across Claude Code sessions. A
 CLAUDE.md is the first thing Claude Code reads when it opens your project. For a new app, create a minimal version by hand. SummonAIKit will generate a comprehensive one later, after code exists to scan.
 
 Create `.claude/CLAUDE.md`:
-
 ```markdown
 # [Your App Name]
 
@@ -92,25 +88,38 @@ Create `.claude/CLAUDE.md`:
 
 - TBD after scaffolding
 
+## Invariants
+
+These rules are non-negotiable. They override convenience, momentum, and "I'll fix it after."
+
+1. **The specification is the source of truth.** No other artifact — implementation plan, code, config, or test — may introduce information (gaps, decisions, constraints, scope changes) that is not already in the specification. When any artifact would introduce new information, update the specification FIRST.
+
+2. **Gap analysis updates the spec before the plan.** When generating or updating an implementation plan:
+   1. Read the active specification
+   2. Identify all gaps (ambiguities, missing decisions, unstated constraints)
+   3. Add a Gaps section to the specification and write each gap there FIRST
+   4. Only then write the implementation plan, which may reference gaps in the spec
+   5. Never write gaps into the implementation plan without them already existing in the specification
+
+3. **Completion requires surfacing human tasks.** When declaring a phase complete, feature complete, or ready to test:
+   1. State what was built
+   2. Check the specification's External Setup section
+   3. List every manual step the human must complete before the app will function
+   4. For each step, state what to do, where to do it, and what to update in the codebase afterward
+   5. Do not say "ready to test" or "feature complete" until you have surfaced all remaining human tasks
+
 ## Rules
 
-- When declaring a phase complete, feature complete, or ready to test:
-  1. State what was built
-  2. Check the specification's External Setup section
-  3. List every manual step the human must complete before the app will function
-  4. For each step, state what to do, where to do it, and what to update in the codebase afterward
-  5. Do not say "ready to test" or "feature complete" until you have surfaced all remaining human tasks
 - After generating an implementation plan, list all External Setup steps from the specification grouped by phase.
 - After completing each phase, remind the human of any manual steps required before the next phase.
 - After any file system operation that produces multiple files (scaffolding, copying, extracting), list the results to confirm before continuing.
 - After scaffolding, verify all expected config files exist (env types, tsconfig, vite config, etc.) before proceeding to feature code.
 - When the specification is ambiguous, stop and ask — do not assume.
-- When implementing a feature not already in the specification, update the specification to include it before or alongside the code change.
 - Before pushing to remote, run the full build command to verify the build succeeds. Do not rely on partial checks (e.g., type-checking alone).
 - After any file conversion or generation (e.g., image format conversion), verify source files are unchanged.
 ```
 
-> The **Rules** section is critical. Without it, Claude Code will say "feature complete" when the code is done — even if external services haven't been configured. The rules redefine "complete" to mean "code is done and all human tasks have been surfaced."
+> The **Invariants** section is critical. Without it, Claude Code will write gaps into the implementation plan instead of the specification, say "feature complete" when external services haven't been configured, or introduce decisions that aren't tracked in the spec. The invariants redefine the workflow contract between human and LLM.
 
 ---
 
@@ -144,7 +153,6 @@ For straightforward CRUD apps, a specification is sufficient. For complex domain
 ## Step 6: Commit and Push
 
 Before opening Claude Code, commit the structure and specification so everything is tracked.
-
 ```bash
 git add .
 git commit -m "Add DevArch structure and v1 specification"
@@ -152,7 +160,6 @@ git push
 ```
 
 At this point, your repo should look like:
-
 ```
 my-app/
 ├── .claude/
@@ -173,15 +180,19 @@ my-app/
 ## Step 7: Open Claude Code and Generate the Implementation Plan
 
 Open Claude Code in your project directory and give it this prompt:
-
 ```
-Read the specification at docs/work/v1-core/specification.md
-and generate an implementation plan. Identify gaps.
+Read the specification at docs/work/v1-core/specification.md.
+Identify any gaps — ambiguities, missing decisions, unstated constraints —
+and add them to a Gaps section in the specification.
+Then generate an implementation plan at docs/work/v1-core/implementation-plan.md
+that references those gaps.
 ```
 
-Claude Code will read your specification and produce an implementation plan at **docs/work/v1-core/implementation-plan.md**. It will also surface open questions — things the specification didn't cover or areas where it needs a decision from you.
+Claude Code will read your specification, update it with any gaps it identifies, and then produce an implementation plan. The plan may reference gaps in the spec, but the gaps themselves live in the specification — never only in the plan.
 
 **Review the plan. Answer the gaps. Then tell Claude Code to proceed.**
+
+> **Important:** The LLM must write gaps into the specification before or during plan generation — not only into the plan. If the implementation plan contains gaps that aren't in the specification, the workflow invariant has been violated. The specification is always the source of truth for gaps, not the plan. If this happens, stop and have the LLM move the gaps to the specification before continuing.
 
 > The implementation plan is not final — it evolves as you build. But starting from a plan grounded in your specification is fundamentally different from starting with "build me an app."
 
@@ -189,16 +200,15 @@ Claude Code will read your specification and produce an implementation plan at *
 
 ## Step 7b: Resolve Gaps
 
-The implementation plan will include a gaps section — decisions the specification didn't address. These need answers before building starts.
+The specification now has a Gaps section — decisions that weren't addressed when the spec was originally written. These need answers before building starts.
 
-1. Read each gap and the LLM's recommendation
+1. Read each gap and the LLM's recommendation (if provided in the implementation plan)
 2. Accept, override, or defer each one
-3. **Update your specification** with every decision
+3. **Update the Decisions section of the specification** with every resolved gap
 
-Add resolved gaps to the **Decisions** section of `docs/work/v1-core/specification.md`. Tag each with `*(gap)*` at the end so you can track which decisions were made upfront vs surfaced during planning. This keeps the specification as the single source of truth for what was decided and why.
+Tag each resolved gap with `*(gap)*` at the end so you can track which decisions were made upfront vs surfaced during planning. This keeps the specification as the single source of truth for what was decided and why.
 
 Then tell Claude Code:
-
 ```
 I've updated the specification with gap decisions. Re-read docs/work/v1-core/specification.md. Plan approved. Start Phase 1.
 ```
@@ -212,7 +222,6 @@ I've updated the specification with gap decisions. Re-read docs/work/v1-core/spe
 Once Claude Code has scaffolded your project and you have actual code, run SummonAIKit to generate a comprehensive CLAUDE.md and technology-specific skills.
 
 **Run SummonAIKit:**
-
 ```bash
 npx summonaikit
 ```
@@ -222,6 +231,8 @@ This scans your codebase and generates:
 1. An updated **.claude/CLAUDE.md** with full project context
 2. Technology-specific skills in **.claude/skills/** (e.g., react.md, supabase.md)
 3. Hooks and settings configuration
+
+> **After SummonAIKit runs, review the generated CLAUDE.md.** Ensure the Invariants section from Step 4 is preserved. If SummonAIKit overwrites it, re-add the Invariants manually. The generated Rules and project context are additive — the Invariants are non-negotiable and must remain.
 
 **Configure Context7:**
 
@@ -289,7 +300,6 @@ Run these against a **dedicated test environment** — never production.
 ### Layer 3: Specification Verification
 
 Walk the original specification feature by feature. For each requirement, confirm the implementation satisfies it:
-
 ```markdown
 | Spec Requirement                          | Status | Notes                      |
 | ----------------------------------------- | ------ | -------------------------- |
@@ -321,11 +331,11 @@ Not every app needs all three layers. Match the verification to the architecture
 | 1    | Create repository on GitHub and clone locally          | Empty repo                                                                         |
 | 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                       |
 | 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                                                  |
-| 4    | Create minimal CLAUDE.md                               | .claude/CLAUDE.md                                                                  |
+| 4    | Create minimal CLAUDE.md with Invariants               | .claude/CLAUDE.md                                                                  |
 | 5    | Write the specification                                | docs/work/v1-core/specification.md                                                 |
 | 6    | Commit and push                                        | Clean starting point in version control                                            |
-| 7    | Open Claude Code; generate implementation plan         | docs/work/v1-core/implementation-plan.md                                           |
-| 7b   | Resolve gaps; update specification                     | Complete specification with all decisions                                          |
+| 7    | Open Claude Code; gaps to spec first, then plan        | Updated specification + docs/work/v1-core/implementation-plan.md                   |
+| 7b   | Resolve gaps; update specification Decisions section   | Complete specification with all decisions tagged _(gap)_                           |
 | 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                                                  |
 | 9    | Build in sessions with summaries                       | Working application                                                                |
 | 10   | Verify against specification                           | Unit/integration tests, E2E data layer tests, specification verification checklist |

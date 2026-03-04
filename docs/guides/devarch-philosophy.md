@@ -53,6 +53,8 @@ The LLM reads the specification and generates a phased plan. This is where gaps 
 
 The human reviews gaps, makes decisions, and updates the specification. Every decision is tagged _(gap)_ so you can track what was upfront vs surfaced during planning. Over time, the pattern of gaps reveals missing sections in your specification template.
 
+When the LLM generates the implementation plan and discovers gaps during that process, it must write them into the specification immediately — before completing the plan. The plan may reference gaps in the spec, but the spec is written first. This prevents gaps from living only in the plan, where they become implementation details rather than specification-level decisions the human must resolve. The CLAUDE.md Invariants section enforces this sequencing.
+
 **Refined Specification**
 
 The specification is now complete — all decisions made, all gaps resolved. It becomes the acceptance criteria for the build.
@@ -112,14 +114,15 @@ Tests at the end verify that the domain's invariants are enforced, not that you 
 
 Every project reveals gaps in the methodology:
 
-| Problem Encountered                                               | Convention Added                                       |
-| ----------------------------------------------------------------- | ------------------------------------------------------ |
-| LLM said "feature complete" without configuring external services | External Setup convention + CLAUDE.md completion rules |
-| Gap decisions lost in chat history                                | Gap Resolution convention with _(gap)_ tags            |
-| Config files lost during scaffolding                              | CLAUDE.md rule: verify files after operations          |
-| "Set by RLS" misread — LLM skipped setting user_id                | Field ownership guidance in specification              |
-| Feature added without updating spec                               | CLAUDE.md rule: update spec before/alongside code      |
-| Mocked tests passed but database rejected inserts                 | E2E data layer testing convention                      |
+| Problem Encountered                                                   | Convention Added                                                                        |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| LLM said "feature complete" without configuring external services     | External Setup convention + CLAUDE.md completion rules                                  |
+| Gap decisions lost in chat history                                    | Gap Resolution convention with _(gap)_ tags                                             |
+| Config files lost during scaffolding                                  | CLAUDE.md rule: verify files after operations                                           |
+| "Set by RLS" misread — LLM skipped setting user_id                    | Field ownership guidance in specification                                               |
+| Feature added without updating spec                                   | CLAUDE.md rule: update spec before/alongside code                                       |
+| Mocked tests passed but database rejected inserts                     | E2E data layer testing convention                                                       |
+| LLM wrote gaps into implementation plan before updating specification | Invariant: gap analysis updates spec before plan; spec is sole source of truth for gaps |
 
 Each convention prevents a class of problems across all future projects. The specification template grows. The CLAUDE.md rules accumulate. The methodology improves with every build.
 

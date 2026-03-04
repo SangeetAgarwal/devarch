@@ -1,320 +1,139 @@
 # DevArch
 
-Software development and architecture guidance for the modern era — where AI is your pair programming partner.
+Specification-driven development for the agentic era.
 
-## About
+## The Leverage Isn't in the Agents — It's in What You Feed Them
 
-This repository contains practical guidance for software developers and architects, with a particular focus on effective workflows when collaborating with generative AI tools like Claude Code, GitHub Copilot, and similar assistants.
+In agentic development, the LLM writes the code. It generates implementation in minutes. The human no longer codes — the human specifies. And the quality of what the LLM produces depends entirely on the quality of what it reads.
 
-The patterns here emerged from real-world project experience, not theory. They address the actual challenges developers face when integrating AI into their daily workflow.
+DevArch is a structured, document-driven workflow where the developer writes the key artifacts and the implementing agent reads them. The human stays in the governance seat.
 
-This is a living repository. Patterns are applied to real projects, lessons are brought back, and the workflow evolves. If something doesn't survive contact with a real codebase, it gets revised or removed.
+While writing software by hand, we often led with unit tests. TDD was never just about testing — it was about design: forcing you to define behavior before implementation. In agentic development, that design step has shifted. We now lead with a specification instead. The spec captures intent, scope, constraints, validation rules, data models, security policies, and acceptance criteria before the LLM generates a single line of code.
 
-## Why This Exists
+The flow becomes:
 
-AI-assisted development is powerful but introduces new challenges:
+```
+Specification → Implementation Plan → Gap Resolution → Build → Test → Verify → Ship
+```
 
-- **Context limitations** — AI tools have finite memory and lose context
-- **Session continuity** — Work spans multiple sessions; AI doesn't remember
-- **Decision traceability** — "Why did we do it this way?" gets lost
-- **Knowledge transfer** — Onboarding AI to your codebase takes effort
-- **Intent gets lost** — AI plans without clear directives produce generic results
+For complex domains, add Domain-Driven Design upstream:
 
-Traditional development practices don't fully address these issues. This repo provides patterns that do.
+```
+Event Storming → Domain Model → Specification → Implementation Plan → Gap Resolution → Build → Test → Verify → Ship
+```
 
-## Philosophy
+The event storm and domain model are base artifacts. You write them once for the domain. Then you write one to N specifications against them — each one a slice of work. The LLM generates an implementation plan from all three, surfaces open questions for you to answer, and then implements against a design you already made.
 
-1. **Specifications over tests as the design step** — In agentic development, the specification replaces TDD's forcing function. The human designs at the specification level; the LLM implements; tests verify. [Full philosophy →](docs/guides/devarch-philosophy.md)
-2. **Documentation is memory** — What you write down survives; what stays in AI context doesn't
-3. **Human intent first** — Specifications capture what you want before AI plans how to build it
-4. **Progressive capture** — Document as you go, not at the end
-5. **Branch = Work folder** — Keep related artifacts together
-6. **Explicit over implicit** — AI works better with clear structure and instructions
-7. **Learn by building** — Apply patterns to real projects, bring lessons back, evolve the workflow
+The LLM's job shrinks from "figure out the domain, design the architecture, and write the code" to just "write the code."
+
+## Getting Started
+
+If you're building a new app from scratch, start with the [Quickstart Guide](docs/guides/devarch-quickstart-new-app.md). It walks through every step from empty repo to verified application.
+
+If you're applying DevArch to an existing codebase, run SummonAIKit first to generate project context, then write a specification for your next feature. See the [Scaffolding Guide](docs/guides/scaffolding.md).
+
+## Repository Structure
+
+```
+devarch/
+├── docs/
+│   ├── guides/                            # Methodology
+│   │   ├── devarch-philosophy.md          # Spec-driven design thesis
+│   │   ├── devarch-quickstart-new-app.md  # New app walkthrough
+│   │   ├── specification.md               # specification.md convention
+│   │   ├── scaffolding.md                 # SummonAIKit + Context7
+│   │   ├── skill-standards.md             # Building Claude Code skills
+│   │   ├── skill-templates/
+│   │   │   └── SKILL.md
+│   │   └── specification-templates/       # DDD specification templates
+│   │       ├── README.md                  # Both approaches explained
+│   │       ├── specification-template.md  # Blank master template
+│   │       ├── feature-specification-template.md
+│   │       └── examples/
+│   │           ├── single-spec/           # Approach 1: one file
+│   │           │   └── specification.md
+│   │           └── multi-spec/            # Approach 2: master + features
+│   │               └── docs/
+│   │                   ├── specification.md
+│   │                   └── work/
+│   │                       ├── feature-sprint-management/
+│   │                       │   └── specification.md
+│   │                       ├── feature-backlog-management/
+│   │                       │   └── specification.md
+│   │                       └── feature-discussion-integration/
+│   │                           └── specification.md
+│   ├── architecture/
+│   │   └── adrs/                          # Architecture decisions
+│   ├── context/                           # Session summaries
+│   │   └── .session-template.md
+│   ├── references/                        # Reference materials
+│   ├── work/                              # Feature work folders
+│   │   └── README.md
+│   ├── architecture-decision-records-guide.md
+│   ├── aws-serverless-backend-guide.md
+│   ├── claude-code-workflow-guide.md
+│   └── copilot-workflow-guide.md
+├── scripts/                               # PowerShell automation
+├── .azuredevops/
+├── .github/
+└── .vscode/
+```
 
 ## Guides
 
-| Guide                                                                        | Description                                                                                                   |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| [Claude Code Workflow](docs/claude-code-workflow-guide.md)                   | Terminal-first development with automatic hooks, native skill loading, and SummonAIKit + Context7 integration |
-| [DevArch Philosophy](docs/guides/devarch-philosophy.md)                      | Why specification-driven development makes sense in the agentic era — and why tests come after the build      |
-| [Copilot Workflow](docs/copilot-workflow-guide.md)                           | PowerShell-driven workflow for Visual Studio 2026, .NET/C# projects, and Azure DevOps                         |
-| [Adopting the Copilot Workflow](docs/adopting-copilot-workflow.md)           | Step-by-step setup for applying the Copilot workflow to new or existing projects                              |
-| [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)               | Let AI build your API: Lambda, API Gateway, DynamoDB, custom domains, hardening                               |
-| [Architecture Decision Records](docs/architecture-decision-records-guide.md) | When and how to document design decisions with ADRs                                                           |
+| Guide                                                               | What It Covers                                                                                                                                                                                    |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [DevArch Philosophy](docs/guides/devarch-philosophy.md)             | Why specifications replace TDD's forcing function in agentic development. The feedback loop, self-improving conventions, and what DevArch is not.                                                 |
+| [Quickstart: New App](docs/guides/devarch-quickstart-new-app.md)    | Step-by-step from empty repo to verified app. Directory structure, CLAUDE.md with invariants, specification writing, gap resolution, scaffolding, building in sessions, three-layer verification. |
+| [The specification.md Convention](docs/guides/specification.md)     | What goes in a specification, what doesn't, external setup, gap resolution with _(gap)_ tags, and verification against the spec.                                                                  |
+| [Scaffolding](docs/guides/scaffolding.md)                           | SummonAIKit generates project context and skills from your codebase. Context7 provides live documentation during sessions. How they complement DevArch.                                           |
+| [Skill-Building Standards](docs/guides/skill-standards.md)          | How to build Claude Code skills. Folder structure, YAML frontmatter, progressive disclosure, testing, and a full TOTP walkthrough.                                                                |
+| [DDD Specification Templates](docs/guides/specification-templates/) | DDD-driven specification templates with blank templates for master and feature specs, plus a case study using Vernon's Scrum Project Management Software example.                                 |
+| [Claude Code Workflow](docs/claude-code-workflow-guide.md)          | Terminal-first development with Claude Code CLI. Session management, hooks, context strategies.                                                                                                   |
+| [Copilot Workflow](docs/copilot-workflow-guide.md)                  | GitHub Copilot + Visual Studio workflow. PowerShell scripts, session management, Azure DevOps integration.                                                                                        |
+| [ADR Guide](docs/architecture-decision-records-guide.md)            | When and how to document architecture decisions.                                                                                                                                                  |
+| [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)      | Lambda, API Gateway, DynamoDB, custom domains, hardening.                                                                                                                                         |
 
-### Key Topics Covered
+## Key Concepts
 
-- **Context management** — Strategies for working within AI context limits
-- **Session summaries** — Maintaining continuity across sessions
-- **Work documentation** — Patterns for preserving decisions and progress
-- **Project organization** — Folder structures that work with AI tools
-- **Hooks and automation** — Reducing manual overhead
+**Specification as source of truth.** No other artifact — implementation plan, code, config, or test — may introduce information not already in the specification. When any artifact would introduce new information, update the specification first.
 
-## Conventions
+**Gap resolution.** When the LLM generates an implementation plan, it surfaces gaps — decisions the spec didn't address. Gaps are written into the specification first, then referenced in the plan. Resolved gaps are tagged _(gap)_ so you can track what was upfront vs. surfaced during planning. Over time, the pattern of gaps reveals missing sections in your specification template.
 
-Conventions are reusable patterns this repo documents and follows. This section grows as new patterns prove themselves in real projects.
+**External setup.** Steps requiring manual action outside the LLM (creating accounts, configuring OAuth, copying API keys) are listed explicitly in the specification. The LLM cannot say "feature complete" without surfacing all remaining human tasks.
 
-| Convention                             | What It Does                                                                                                                                                                                                                                                                                                         | Guide                                                |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **specification.md**                   | Human-authored directive capturing intent, constraints, and decisions before the LLM generates an implementation plan. Lives at `docs/work/{feature}/specification.md`.                                                                                                                                              | [guide](docs/guides/specification.md)                |
-| **SummonAIKit + Context7 scaffolding** | Auto-generates `CLAUDE.md`, skills, and hooks from your codebase (SummonAIKit). Provides live, version-specific documentation lookup during sessions (Context7).                                                                                                                                                     | [guide](docs/guides/scaffolding.md)                  |
-| **Skill-building standards**           | Guidelines for creating custom workflow skills aligned with Anthropic's official conventions — YAML frontmatter, progressive disclosure, trigger phrases.                                                                                                                                                            | [guide](docs/guides/skill-standards.md)              |
-| **Skill template**                     | Starter template for new skills.                                                                                                                                                                                                                                                                                     | [template](docs/guides/skill-template/SKILL.md)      |
-| **Gap resolution**                     | After the LLM generates an implementation plan, review the gaps it surfaces, make decisions, and update the specification. The spec remains the single source of truth.                                                                                                                                              | [guide](docs/guides/specification.md#gap-resolution) |
-| **External setup**                     | Explicitly list manual steps the human must complete outside of Claude Code — creating accounts, configuring services, copying API keys. Prevents the LLM from building against services that don't exist.                                                                                                           | [guide](docs/guides/specification.md#external-setup) |
-| **Verification**                       | After the build, verify the implementation against the specification. Three layers: unit/integration tests (prove app logic), E2E data layer tests (prove database constraints and security policies), and specification verification (prove it matches requirements). Code is cheap — confidence is the bottleneck. | [guide](docs/guides/specification.md#verification)   |
+**Session summaries.** Each session ends with a summary of what was accomplished, what decisions were made, and what remains. The next session reads the summary and picks up where you left off. This solves the biggest problem in AI-assisted development: context loss between sessions.
 
-## Dual Workflow Approach
+**Three-layer verification.** Unit/integration tests verify application logic. E2E data layer tests verify real database constraints and security policies. Specification verification walks the spec feature by feature confirming the implementation satisfies each requirement.
 
-This repository supports two complementary workflows:
+**Self-improving conventions.** Every project reveals gaps in the methodology. Each problem encountered becomes a convention that prevents that class of problems across all future work. The specification template grows. The CLAUDE.md rules accumulate. The methodology improves with every build.
 
-### Claude Code CLI Workflow
+## When to Add DDD
 
-- **Automation**: Automatic hooks for session management
-- **Integration**: Native CLI commands (`write work summary`, `/context`)
-- **Scaffolding**: SummonAIKit + Context7 for project context and live documentation
-- **Best for**: Terminal-based development, quick automation
+For straightforward CRUD apps, a specification is sufficient. For complex domains with multiple actors, bounded contexts, and intricate business rules, add Domain-Driven Design upstream of the specification.
 
-### GitHub Copilot + Visual Studio Workflow
+Event Storming and domain modeling surface the business language, boundaries, invariants, and policies before any technical decisions. These produce a domain model that feeds directly into the specification. The event storm and domain model are base artifacts — you write them once for the domain, then write specifications against them.
 
-- **Automation**: PowerShell scripts for session management
-- **Integration**: Visual Studio 2026, Azure DevOps pipelines
-- **Best for**: Windows development, .NET ecosystem, enterprise environments
+### DDD Specification Templates
 
-Both workflows share the same core principles — session continuity, work folders, ADRs — adapted to each tool's strengths:
+The [specification-templates/](docs/guides/specification-templates/) folder provides templates and worked examples for writing DDD-informed specifications that agents consume directly. The templates use DDD vocabulary as precise instructions — aggregate root, invariant, value object, domain event — because the agent already understands these terms. Each one is a compressed instruction set that eliminates implementation decisions the agent might get wrong.
 
-- Session summaries for context continuity
-- Work folders matching branches
-- ADRs for architectural decisions
-- Implementation plans for progress tracking
-- Specifications for capturing human intent
-- Progressive documentation throughout development
+**Two approaches are provided:**
 
-## Quick Start
+**Single specification** — one `specification.md` containing the complete domain model. All bounded contexts, aggregates, the full context map, and all domain events in a single file. The agent reads everything, generates an implementation plan, surfaces gaps for you to resolve, and builds from the whole picture. Faster to set up, fewer files to manage. Use this for small to medium projects with one or two bounded contexts. The tradeoff: the agent processes the entire domain on every task, which works until the domain grows large enough that the agent starts making mistakes at the edges.
 
-### For Claude Code CLI Users
+**Master plus feature specifications** — a master `specification.md` with the complete domain model, plus extracted feature-level specs scoped to a single bounded context or aggregate. The master and the feature spec are identical in structure — the feature spec is just a slice. The agent reads only the slice relevant to its current task, generates an implementation plan against that scope, and surfaces gaps for you to resolve — all within the feature spec, then folded back into the master. This means the agent's job is smaller and more focused on each task. The result is more accurate implementation, clearer boundaries on what the agent should and should not touch, and — critically — easier debugging in production. When something breaks, the feature spec tells you exactly which aggregate, which invariants, and which cross-context contracts were in play. You don't search the entire domain model to find the relevant rules. The tradeoff: slower to set up because extraction is human work, and you maintain more files. Use this for complex projects with three or more bounded contexts or parallel development.
 
-```bash
-# Clone and start
-git clone https://github.com/SangeetAgarwal/devarch.git
-cd devarch
+Both approaches include a case study based on a Scrum Project Management Software example drawn from Vaughn Vernon's _Domain-Driven Design Distilled_ (Addison-Wesley, 2016). The case study demonstrates three bounded contexts (Agile PM, Collaboration, Identity & Access) with distinct ubiquitous languages, cross-context domain events, ACL translations, and identity that appears differently in each context.
 
-# Read the guide
-cat docs/claude-code-workflow-guide.md
+## Status
 
-# Set up hooks (optional)
-# See guide for .claude/settings.json configuration
-```
+The core workflow is in use — specifications, gap resolution, session summaries, scaffolding with SummonAIKit and Context7, and three-layer verification. The lessons learned from building real projects become conventions and rules in this repo.
 
-### For GitHub Copilot + Visual Studio 2026 Users
-
-```powershell
-# Clone repository
-git clone https://github.com/SangeetAgarwal/devarch.git
-cd devarch
-
-# Create a new feature
-.\scripts\New-Feature.ps1 -FeatureName "your-feature"
-
-# Read the comprehensive guide
-code docs\copilot-workflow-guide.md
-
-# See all available scripts
-Get-ChildItem .\scripts\*.ps1
-```
-
-**Prerequisites:**
-
-- PowerShell 5.1+ (pre-installed on Windows)
-- Git
-- Visual Studio 2026 with GitHub Copilot extensions
-- Claude Opus 4.5 model (select in Copilot settings)
-
-## Applying This Workflow to Your Own Projects
-
-Once you've reviewed this repository, you can apply the GitHub Copilot workflow to any of your projects:
-
-### For a New Project
-
-```powershell
-# 1. Create your project repository
-mkdir my-project && cd my-project
-git init
-
-# 2. Copy the workflow files from devarch
-# Option A: Manual copy
-# Copy these to your project:
-#   - scripts/ (all PowerShell scripts)
-#   - .github/copilot-instructions.md
-#   - .copilotignore
-#   - docs/context/.session-template.md
-
-# Option B: Using git (recommended)
-git remote add devarch https://github.com/SangeetAgarwal/devarch.git
-git fetch devarch
-git checkout devarch/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
-git remote remove devarch
-
-# 3. Customize for your project
-# Edit .github/copilot-instructions.md:
-#   - Update "Overview" section with your project description
-#   - Update "Current Work" section
-#   - Update "Project Structure" to match your codebase
-# Edit .copilotignore:
-#   - Add your project-specific build outputs
-#   - Add framework-specific folders to ignore
-
-# 4. Create required directories
-mkdir -p docs/context docs/architecture/adrs docs/work
-
-# 5. Start your first feature
-.\scripts\New-Feature.ps1 -FeatureName "initial-setup"
-# This creates the branch, work folder, and initial documentation
-
-# 6. Begin working with the workflow
-# The generated prompt is already in your clipboard - paste into Copilot Chat
-```
-
-### For an Existing Project
-
-```powershell
-# 1. Navigate to your existing repository
-cd path/to/your-existing-repo
-
-# 2. Copy the workflow files (same as above - Option A or B)
-git remote add devarch https://github.com/SangeetAgarwal/devarch.git
-git fetch devarch
-git checkout devarch/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
-git remote remove devarch
-
-# 3. Customize for your existing project
-# Edit .github/copilot-instructions.md with your:
-#   - Project overview and architecture
-#   - Current conventions and patterns
-#   - Existing folder structure
-#   - Build/test commands
-# Edit .copilotignore for your build artifacts
-
-# 4. Create documentation structure (if not exists)
-mkdir -p docs/context docs/architecture/adrs docs/work
-
-# 5. Start tracking your current work
-.\scripts\New-Session.ps1
-# Paste the generated prompt into Copilot Chat to begin
-```
-
-### Key Files to Customize
-
-After copying the workflow files, customize these for your specific project:
-
-1. **`.github/copilot-instructions.md`** (IMPORTANT)
-   - Replace the devarch-specific content with your project details
-   - Update the "Overview", "Current Work", and "Project Structure" sections
-   - Add your project's specific conventions, patterns, and architecture decisions
-   - Update build/test commands
-
-2. **`.copilotignore`**
-   - Add your project-specific build directories (e.g., `target/` for Java, `build/` for Gradle)
-   - Add framework-specific folders (e.g., `venv/` for Python, `vendor/` for PHP)
-   - Keep the common entries already present
-
-3. **`docs/context/.session-template.md`** (optional)
-   - Modify the template structure if you need different sections
-   - Most projects can use it as-is
-
-### What Gets Created
-
-The workflow creates this structure in your project:
-
-```
-your-project/
-├── .github/
-│   └── copilot-instructions.md          # Project instructions for Copilot
-├── .copilotignore                        # Context optimization
-├── scripts/                              # PowerShell automation scripts
-│   ├── New-Session.ps1
-│   ├── Resume-Session.ps1
-│   ├── End-Session.ps1
-│   ├── New-WorkSummary.ps1
-│   ├── New-Feature.ps1
-│   ├── New-ADR.ps1
-│   ├── Context-Check.ps1
-│   ├── Update-ImplementationPlan.ps1
-│   └── README.md
-├── docs/
-│   ├── context/                          # Session summaries
-│   │   ├── .session-template.md
-│   │   └── session-*.md
-│   ├── architecture/
-│   │   └── adrs/                         # Architecture decisions
-│   └── work/
-│       └── {branch-name}/               # Work folders (match branch names)
-│           ├── README.md
-│           ├── implementation-plan.md
-│           └── context/                  # Work summaries
-└── [your existing code]
-```
-
-The scripts work in any repository — they manage documentation and generate Copilot prompts. Your actual code stays in your existing structure.
-
-### Next Steps After Setup
-
-1. Read the [Copilot Workflow Guide](docs/copilot-workflow-guide.md) for detailed usage
-2. Run `.\scripts\New-Session.ps1` to start your first session
-3. Use `.\scripts\Context-Check.ps1` regularly to monitor context
-4. Generate work summaries after significant milestones with `.\scripts\New-WorkSummary.ps1`
-
-## Full Project Structure
-
-This shows the complete structure including both workflow toolchains and all conventions:
-
-```
-your-project/
-├── .claude/                              # Claude Code configuration (CLI workflow)
-│   ├── CLAUDE.md                         # Project overview (generated by SummonAIKit)
-│   ├── settings.json                     # Hooks and permissions
-│   └── skills/                           # Tech-specific and custom skills
-├── .github/
-│   └── copilot-instructions.md           # Project instructions (Copilot workflow)
-├── .copilotignore                        # Context optimization (Copilot workflow)
-├── scripts/                              # PowerShell automation (Copilot workflow)
-├── docs/
-│   ├── context/                          # Session summaries
-│   │   ├── .session-template.md
-│   │   └── session-*.md
-│   ├── architecture/
-│   │   └── adrs/                         # Architecture decision records
-│   ├── guides/                           # Workflow conventions and standards
-│   │   ├── scaffolding.md
-│   │   ├── specification.md
-│   │   ├── skill-standards.md
-│   │   └── skill-template/
-│   │       └── SKILL.md
-│   ├── references/                       # Reference material (PDFs, etc.)
-│   └── work/
-│       └── {feature-name}/               # Work folders (match branch names)
-│           ├── specification.md           # Human intent
-│           ├── implementation-plan.md     # LLM-generated plan
-│           ├── README.md                  # Retrospective (written after completion)
-│           └── context/                   # Work summaries
-└── [your existing code]
-```
-
-## References
-
-| Resource                                                       | Location                             |
-| -------------------------------------------------------------- | ------------------------------------ |
-| Anthropic's Complete Guide to Building Skills for Claude (PDF) | [docs/references/](docs/references/) |
-
-## Contributing
-
-Found a pattern that works well? Have improvements to suggest? Contributions are welcome.
+The Event Storming and DDD specification templates are the latest additions. This methodology is being built in the open. What works stays. What doesn't gets revised.
 
 ## License
 
-MIT
+MIT — Created by [Sangeet Agarwal](https://github.com/SangeetAgarwal)
 
----
-
-_Built by [Sangeet Agarwal](https://github.com/SangeetAgarwal)._
+Forked from [ChicagoDave/devarch](https://github.com/ChicagoDave/devarch).
