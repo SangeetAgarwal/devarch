@@ -81,18 +81,18 @@ devarch/
 
 ## Guides
 
-| Guide                                                               | What It Covers                                                                                                                                                                                    |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [DevArch Philosophy](docs/guides/devarch-philosophy.md)             | Why specifications replace TDD's forcing function in agentic development. The feedback loop, self-improving conventions, and what DevArch is not.                                                 |
-| [Quickstart: New App](docs/guides/devarch-quickstart-new-app.md)    | Step-by-step from empty repo to verified app. Directory structure, CLAUDE.md with invariants, specification writing, gap resolution, scaffolding, building in sessions, three-layer verification. |
-| [The specification.md Convention](docs/guides/specification.md)     | What goes in a specification, what doesn't, external setup, gap resolution with _(gap)_ tags, and verification against the spec.                                                                  |
-| [Scaffolding](docs/guides/scaffolding.md)                           | SummonAIKit generates project context and skills from your codebase. Context7 provides live documentation during sessions. How they complement DevArch.                                           |
-| [Skill-Building Standards](docs/guides/skill-standards.md)          | How to build Claude Code skills. Folder structure, YAML frontmatter, progressive disclosure, testing, and a full TOTP walkthrough.                                                                |
-| [DDD Specification Templates](docs/guides/specification-templates/) | DDD-driven specification templates with blank templates for master and feature specs, plus a case study using Vernon's Scrum Project Management Software example.                                 |
-| [Claude Code Workflow](docs/claude-code-workflow-guide.md)          | Terminal-first development with Claude Code CLI. Session management, hooks, context strategies.                                                                                                   |
-| [Copilot Workflow](docs/copilot-workflow-guide.md)                  | GitHub Copilot + Visual Studio workflow. PowerShell scripts, session management, Azure DevOps integration.                                                                                        |
-| [ADR Guide](docs/architecture-decision-records-guide.md)            | When and how to document architecture decisions.                                                                                                                                                  |
-| [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)      | Lambda, API Gateway, DynamoDB, custom domains, hardening.                                                                                                                                         |
+| Guide                                                               | What It Covers                                                                                                                                                                                   |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [DevArch Philosophy](docs/guides/devarch-philosophy.md)             | Why specifications replace TDD's forcing function in agentic development. The feedback loop, self-improving conventions, and what DevArch is not.                                                |
+| [Quickstart: New App](docs/guides/devarch-quickstart-new-app.md)    | Step-by-step from empty repo to verified app. Directory structure, CLAUDE.md with invariants, specification writing, gap resolution, scaffolding, building in sessions, four-layer verification. |
+| [The specification.md Convention](docs/guides/specification.md)     | What goes in a specification, what doesn't, external setup, gap resolution with _(gap)_ tags, and verification against the spec.                                                                 |
+| [Scaffolding](docs/guides/scaffolding.md)                           | SummonAIKit generates project context and skills from your codebase. Context7 provides live documentation during sessions. How they complement DevArch.                                          |
+| [Skill-Building Standards](docs/guides/skill-standards.md)          | How to build Claude Code skills. Folder structure, YAML frontmatter, progressive disclosure, testing, and a full TOTP walkthrough.                                                               |
+| [DDD Specification Templates](docs/guides/specification-templates/) | DDD-driven specification templates with blank templates for master and feature specs, plus a case study using Vernon's Scrum Project Management Software example.                                |
+| [Claude Code Workflow](docs/claude-code-workflow-guide.md)          | Terminal-first development with Claude Code CLI. Session management, hooks, context strategies.                                                                                                  |
+| [Copilot Workflow](docs/copilot-workflow-guide.md)                  | GitHub Copilot + Visual Studio workflow. PowerShell scripts, session management, Azure DevOps integration.                                                                                       |
+| [ADR Guide](docs/architecture-decision-records-guide.md)            | When and how to document architecture decisions.                                                                                                                                                 |
+| [AWS Serverless Backend](docs/aws-serverless-backend-guide.md)      | Lambda, API Gateway, DynamoDB, custom domains, hardening.                                                                                                                                        |
 
 ## Key Concepts
 
@@ -104,7 +104,7 @@ devarch/
 
 **Session summaries.** Each session ends with a summary of what was accomplished, what decisions were made, and what remains. The next session reads the summary and picks up where you left off. This solves the biggest problem in AI-assisted development: context loss between sessions.
 
-**Three-layer verification.** Unit/integration tests verify application logic. E2E data layer tests verify real database constraints and security policies. Specification verification walks the spec feature by feature confirming the implementation satisfies each requirement.
+**Four-layer verification.** Unit/integration tests verify application logic. E2E data layer tests verify real database constraints and security policies. Specification verification walks the spec feature by feature confirming the implementation satisfies each requirement. Perspective assessment feeds the specification and key source files to Claude with Research enabled, evaluating from multiple professional perspectives to surface blind spots the other layers miss.
 
 **Self-improving conventions.** Every project reveals gaps in the methodology. Each problem encountered becomes a convention that prevents that class of problems across all future work. The specification template grows. The CLAUDE.md rules accumulate. The methodology improves with every build.
 
@@ -128,7 +128,7 @@ Both approaches include a case study based on a Scrum Project Management Softwar
 
 ## Status
 
-The core workflow is in use — specifications, gap resolution, session summaries, scaffolding with SummonAIKit and Context7, and three-layer verification. The lessons learned from building real projects become conventions and rules in this repo.
+The core workflow is in use — specifications, gap resolution, session summaries, scaffolding with SummonAIKit and Context7, and four-layer verification. The lessons learned from building real projects become conventions and rules in this repo.
 
 The Event Storming and DDD specification templates are the latest additions. This methodology is being built in the open. What works stays. What doesn't gets revised.
 

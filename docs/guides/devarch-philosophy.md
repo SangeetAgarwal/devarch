@@ -65,15 +65,16 @@ The LLM implements from the refined specification. The human reviews, directs, a
 
 **Tests**
 
-Three layers, each catching different classes of bugs:
+Four layers, each catching different classes of bugs:
 
 - **Unit and integration tests** verify application logic with mocked external services. The app sends the right calls.
 - **E2E data layer tests** verify real database constraints, security policies, triggers, and data shapes. The infrastructure enforces the rules.
 - **Specification verification** walks the original spec feature by feature. The app does what was intended.
+- **Perspective assessment** feeds the specification and key implementation files to Claude with Research enabled, prompting evaluation from multiple professional perspectives (senior developer, QA specialist, security specialist). Surfaces blind spots the other three layers miss.
 
 **Ship**
 
-When all three layers pass, you have confidence. Not hope — confidence. The spec defined what correct looks like. The tests proved it. The E2E tests proved the infrastructure enforces it.
+When all four layers pass, you have confidence. Not hope — confidence. The spec defined what correct looks like. The tests proved it. The E2E tests proved the infrastructure enforces it. The perspective assessment caught what you didn't think to test.
 
 ## Why Tests Come After the Build
 
@@ -137,6 +138,24 @@ This is not self-healing. DevArch doesn't catch problems at runtime. It prevents
 **Not framework-specific.** The methodology works with React, ASP.NET, Python, or anything else. Specifications, gap resolution, external setup, and verification are universal.
 
 **Not a replacement for domain expertise.** The LLM can generate code, but it can't decide where bounded context boundaries go, what invariants matter, or what security policies to enforce. Those decisions require someone who understands the domain. DevArch is a workflow for capturing and transmitting that expertise to the LLM.
+
+## What DevArch Can't Prevent
+
+CLAUDE.md invariants prevent structural failures — the agent won't skip gap analysis, won't say "feature complete" without surfacing external setup steps, won't introduce decisions that aren't in the specification. These are rule-based guardrails and they work.
+
+What they can't prevent is the model degrading mid-session. This happens unpredictably and the patterns are recognizable:
+
+The agent starts taking shortcuts — simplifying implementations that were previously detailed, removing test files to get builds passing, or generating increasingly generic code that ignores project-specific conventions.
+
+The agent ignores invariants it followed earlier in the same session — writing gaps into the implementation plan instead of the specification, or declaring work complete without checking external setup.
+
+The agent enters what David Cornelson calls "hurry up mode" — racing to complete tasks by cutting corners rather than maintaining quality. This often manifests as the agent deleting or gutting test files to make builds pass, or collapsing multi-step processes into single steps that skip validation.
+
+The correct response is to stop. Commit what you have. End the session. Write a session summary. Start fresh. The cost of a new session is a few minutes of context loading. The cost of letting a degraded session continue is hours of work that needs to be undone.
+
+This is operational knowledge, not methodology. DevArch structures how you work. Knowing when to stop working is judgment that no document can automate. Pay attention. When the quality drops, quit.
+
+This pattern was first described by David Cornelson in [Building Complex Software with Claude AI](https://www.linkedin.com/pulse/building-complex-software-claude-ai-david-cornelson-ededc/).
 
 ## The Core Claim
 

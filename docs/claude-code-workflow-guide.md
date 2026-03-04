@@ -5,6 +5,7 @@ A guide to productive collaboration with Claude Code, based on real project expe
 ## Philosophy
 
 This workflow optimizes for:
+
 - **Context continuity** across sessions (Claude Code forgets between compacts)
 - **Traceability** of decisions and work completed
 - **Efficient handoffs** between sessions
@@ -12,12 +13,12 @@ This workflow optimizes for:
 
 ## Key Commands to Know
 
-| Command | Purpose |
-|---------|---------|
+| Command              | Purpose                                                           |
+| -------------------- | ----------------------------------------------------------------- |
 | `write work summary` | Triggers the work-summary-writer agent to document completed work |
-| `/context` | Shows remaining context - **check this often!** |
-| `/compact` | Compresses context when running low |
-| `/help` | Get help with Claude Code features |
+| `/context`           | Shows remaining context - **check this often!**                   |
+| `/compact`           | Compresses context when running low                               |
+| `/help`              | Get help with Claude Code features                                |
 
 ---
 
@@ -45,6 +46,7 @@ When context is running low (~10-15% remaining):
 ### Why Not Just /compact?
 
 `/compact` compresses context but Claude loses nuance and details. A full restart with a good work summary gives Claude:
+
 - Fresh, full context window
 - Your detailed notes on what was done
 - Clear next steps to continue
@@ -89,19 +91,20 @@ project/
 
 ### Purpose of Each Area
 
-| Directory | Purpose | Updated |
-|-----------|---------|---------|
-| `docs/context/` | Session-level progress summaries | Every session |
-| `docs/work/{branch}/` | **All artifacts for a branch**: plans, specs, research, evidence | Throughout feature work |
-| `docs/work/{branch}/context/` | Detailed work summaries | After significant work |
-| `docs/architecture/adrs/` | Architecture decisions | When making design choices |
-| `CLAUDE.md` | Project instructions Claude reads automatically | As patterns emerge |
+| Directory                     | Purpose                                                          | Updated                    |
+| ----------------------------- | ---------------------------------------------------------------- | -------------------------- |
+| `docs/context/`               | Session-level progress summaries                                 | Every session              |
+| `docs/work/{branch}/`         | **All artifacts for a branch**: plans, specs, research, evidence | Throughout feature work    |
+| `docs/work/{branch}/context/` | Detailed work summaries                                          | After significant work     |
+| `docs/architecture/adrs/`     | Architecture decisions                                           | When making design choices |
+| `CLAUDE.md`                   | Project instructions Claude reads automatically                  | As patterns emerge         |
 
 ### The Branch = Work Folder Pattern
 
 **Your git branch name should match your work folder.** If you're on branch `feature-auth`, your work lives in `docs/work/feature-auth/`.
 
 This folder contains everything related to that work:
+
 - `README.md` - Overview of the feature/project
 - `implementation-plan.md` - Tracking progress
 - Research notes, specs, design docs
@@ -263,21 +266,27 @@ Session summaries provide context continuity. Create one at the start of each se
 ## Status: In Progress
 
 ## Goals
+
 - (To be filled as work progresses)
 
 ## Completed
+
 - (None yet)
 
 ## Key Decisions
+
 - (None yet)
 
 ## Open Items
+
 - (None yet)
 
 ## Files Modified
+
 - (None yet)
 
 ## Notes
+
 - Session started: {{TIMESTAMP}}
 ```
 
@@ -286,6 +295,7 @@ Session summaries provide context continuity. Create one at the start of each se
 `session-YYYYMMDD-HHMM-{branch}.md`
 
 Examples:
+
 - `session-20260114-0945-feature-auth.md`
 - `session-20260113-1010-api-refactor.md`
 
@@ -294,6 +304,7 @@ This ensures chronological sort order and groups sessions by branch/feature.
 ### When to Update
 
 Update the session file:
+
 - After completing significant chunks of work
 - After key decisions or discoveries
 - After test runs or builds
@@ -312,6 +323,7 @@ Since branch = work folder, if you're on branch `api-refactor`, your work summar
 `YYYY-MM-DD-HHMM-{topic}.md`
 
 Examples:
+
 - `2025-12-27-1737-project-kickoff.md`
 - `2026-01-02-1500-auth-middleware-implementation.md`
 - `2026-01-03-0930-database-migration-fixes.md`
@@ -327,30 +339,38 @@ Examples:
 **Branch**: `{branch-name}`
 
 ## Objective
+
 {What we set out to accomplish}
 
 ## What Was Accomplished
+
 {Detailed description of work done}
 
 ## Key Decisions
+
 {Important choices made and rationale}
 
 ## Challenges & Solutions
+
 {Problems encountered and how they were solved}
 
 ## Code Quality
+
 {Notes on testing, review, etc.}
 
 ## Next Steps
+
 {What remains to be done}
 
 ## References
+
 {Links to related files, ADRs, etc.}
 ```
 
 ### When to Create
 
 Create a work summary:
+
 - After completing a significant feature
 - After a logical chunk of work (multi-hour sessions)
 - When you want to preserve detailed context for future reference
@@ -472,18 +492,23 @@ Document significant design decisions.
 # ADR-XXX: {Title}
 
 ## Status
+
 Proposed | Accepted | Deprecated | Superseded by ADR-YYY
 
 ## Context
+
 What issue motivated this decision?
 
 ## Decision
+
 What change are we making?
 
 ## Consequences
+
 What becomes easier or harder?
 
 ## Alternatives Considered
+
 What other options were evaluated?
 ```
 
@@ -529,33 +554,43 @@ The project instructions file Claude reads automatically.
 # Project Instructions for Claude
 
 ## Overview
+
 Brief project description
 
 ## MAJOR DIRECTIONS
+
 Critical rules (e.g., "never delete files without confirmation")
 
 ## Architecture Principles
+
 Key patterns to follow (language separation, logic location, etc.)
 
 ## Current Work
+
 What we're working on now, with links to planning docs
 
 ## Previous Work (Complete)
+
 Recently completed work for context
 
 ## Core Concepts Reference
+
 Links to reference docs Claude should read
 
 ## Project Structure
+
 Package organization
 
 ## Testing Commands
+
 How to run tests
 
 ## Work Patterns
+
 Where to put planning docs, summaries, logs
 
 ## Key Locations
+
 Important file paths
 ```
 
@@ -573,12 +608,15 @@ Important file paths
 ## Autonomous Work Flow
 
 ### Progressive Session Summaries
+
 At session start, create/update session file.
 During session, update progressively.
 Before compact, finalize summary.
 
 ### Context Management
+
 When context usage is high:
+
 1. Finalize session summary
 2. Commit and push
 3. Wait for /compact
@@ -604,31 +642,35 @@ For larger features, create an implementation plan.
 ## Phase Breakdown
 
 ### Phase 1: {Name}
-| Item | Status | Notes |
-|------|--------|-------|
-| Item 1 | Done | ... |
-| Item 2 | In Progress | ... |
+
+| Item   | Status      | Notes |
+| ------ | ----------- | ----- |
+| Item 1 | Done        | ...   |
+| Item 2 | In Progress | ...   |
 
 ### Phase 2: {Name}
+
 ...
 
 ---
 
 ## Summary
 
-| Category | Done | Total | % |
-|----------|------|-------|---|
-| API Endpoints | 5 | 10 | 50% |
-| Tests | 20 | 20 | 100% |
-| Components | 3 | 8 | 38% |
+| Category      | Done | Total | %    |
+| ------------- | ---- | ----- | ---- |
+| API Endpoints | 5    | 10    | 50%  |
+| Tests         | 20   | 20    | 100% |
+| Components    | 3    | 8     | 38%  |
 
 ---
 
 ## Recently Completed
+
 - Item 1 (date) - description
 - Item 2 (date) - description
 
 ## Priority Next Steps
+
 1. Next thing
 2. Thing after that
 ```
@@ -636,6 +678,7 @@ For larger features, create an implementation plan.
 ### Tracking Progress
 
 Update the implementation plan as work progresses:
+
 - Mark items as done
 - Add to "Recently Completed" section
 - Keep "Priority Next Steps" current
@@ -651,6 +694,7 @@ Update the implementation plan as work progresses:
    - Don't just check that events were emitted or logs written
 
 2. **Use dedicated test commands**
+
    ```bash
    # Run specific test file
    npm test -- --grep "test name"
@@ -684,22 +728,26 @@ packages/{package}/
 ## Quick Reference
 
 ### Session Start
+
 1. Hook creates session file automatically
 2. Claude sees previous session for context
 3. Update session file as you work
 
 ### Completing Work
+
 1. Update session summary
 2. Create work summary if significant
 3. Update implementation plan
 4. Commit changes
 
 ### Making Decisions
+
 1. Write ADR before implementation
 2. Get approval if needed
 3. Reference ADR in implementation
 
 ### Low Context Warning (CRITICAL)
+
 1. Check `/context` regularly during work sessions
 2. At ~10% remaining, STOP all work immediately
 3. Tell Claude `write work summary`
@@ -710,6 +758,7 @@ packages/{package}/
 8. Continue working with fresh context
 
 ### Starting New Feature
+
 1. Create branch (e.g., `git checkout -b feature-auth`)
 2. Create matching work directory (`docs/work/feature-auth/`)
 3. Write `README.md` describing the feature
@@ -726,6 +775,7 @@ One of the most powerful patterns is using `write work summary` to document comp
 ### When to Use It
 
 Tell Claude Code `write work summary` when:
+
 - You've completed a feature or significant piece of functionality
 - You're about to switch to a different task or feature
 - You've finished a debugging session that solved a tricky problem
@@ -735,6 +785,7 @@ Tell Claude Code `write work summary` when:
 ### What It Does
 
 The work-summary-writer agent:
+
 1. Reviews the conversation context
 2. Identifies what was accomplished
 3. Documents key decisions and rationale
@@ -754,9 +805,32 @@ The work-summary-writer agent:
 ### Why This Matters
 
 Work summaries serve as **detailed memory** that persists across context compacts. When you return to a feature later, you can:
+
 1. Read the work summary to quickly understand what was done
 2. See the decisions made and why
 3. Pick up exactly where you left off
+
+---
+
+## Assessment Work Outside Claude Code
+
+Claude Code is optimized for building — reading files, editing code, running commands. Some assessment work is better done in claude.ai or Claude Desktop with Research enabled.
+
+Research mode conducts multi-step agentic searches, pulling in current best practices, security advisories, and library-specific guidance that Claude Code's terminal interface doesn't offer. When you need to evaluate an implementation against both your specification and current external standards, Research is the right tool.
+
+### When to Use Research for Assessment
+
+After a build is complete and you want to evaluate the implementation against both your specification and current external standards:
+
+1. Open claude.ai or Claude Desktop
+2. Toggle Research on
+3. Upload the specification and key source files (security policies, auth configuration, validation logic, business rules)
+4. Prompt for a multi-perspective assessment — for example: "Assess this implementation against the specification from three perspectives: a senior developer focusing on code quality, a QA specialist focusing on test coverage gaps, and a security specialist focusing on authentication and data access policies."
+5. Save the output to `docs/context/` as a reference or use it to create new work items in `docs/work/`
+
+Claude Code builds. Research assesses. Use both.
+
+This technique was adapted from David Cornelson's workflow described in [Building Complex Software with Claude AI](https://www.linkedin.com/pulse/building-complex-software-claude-ai-david-cornelson-ededc/).
 
 ---
 

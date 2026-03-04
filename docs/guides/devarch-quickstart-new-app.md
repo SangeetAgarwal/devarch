@@ -26,6 +26,7 @@ Create a new repository on GitHub for your application.
 6. Click Create repository
 
 Clone it locally:
+
 ```bash
 git clone https://github.com/your-username/my-app.git
 cd my-app
@@ -36,6 +37,7 @@ cd my-app
 ## Step 2: Create the DevArch Directory Structure
 
 DevArch organizes documentation alongside your code. Create the directory structure before writing any code.
+
 ```bash
 mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
 ```
@@ -54,6 +56,7 @@ mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
 ## Step 3: Copy the Session Template
 
 If you have the DevArch repo cloned locally, copy the session summary template:
+
 ```bash
 cp /path/to/devarch/docs/context/.session-template.md docs/context/.session-template.md
 ```
@@ -67,6 +70,7 @@ Session summaries are how you maintain continuity across Claude Code sessions. A
 CLAUDE.md is the first thing Claude Code reads when it opens your project. For a new app, create a minimal version by hand. SummonAIKit will generate a comprehensive one later, after code exists to scan.
 
 Create `.claude/CLAUDE.md`:
+
 ```markdown
 # [Your App Name]
 
@@ -153,6 +157,7 @@ For straightforward CRUD apps, a specification is sufficient. For complex domain
 ## Step 6: Commit and Push
 
 Before opening Claude Code, commit the structure and specification so everything is tracked.
+
 ```bash
 git add .
 git commit -m "Add DevArch structure and v1 specification"
@@ -160,6 +165,7 @@ git push
 ```
 
 At this point, your repo should look like:
+
 ```
 my-app/
 ├── .claude/
@@ -180,6 +186,7 @@ my-app/
 ## Step 7: Open Claude Code and Generate the Implementation Plan
 
 Open Claude Code in your project directory and give it this prompt:
+
 ```
 Read the specification at docs/work/v1-core/specification.md.
 Identify any gaps — ambiguities, missing decisions, unstated constraints —
@@ -209,6 +216,7 @@ The specification now has a Gaps section — decisions that weren't addressed wh
 Tag each resolved gap with `*(gap)*` at the end so you can track which decisions were made upfront vs surfaced during planning. This keeps the specification as the single source of truth for what was decided and why.
 
 Then tell Claude Code:
+
 ```
 I've updated the specification with gap decisions. Re-read docs/work/v1-core/specification.md. Plan approved. Start Phase 1.
 ```
@@ -222,6 +230,7 @@ I've updated the specification with gap decisions. Re-read docs/work/v1-core/spe
 Once Claude Code has scaffolded your project and you have actual code, run SummonAIKit to generate a comprehensive CLAUDE.md and technology-specific skills.
 
 **Run SummonAIKit:**
+
 ```bash
 npx summonaikit
 ```
@@ -258,7 +267,7 @@ With the implementation plan reviewed and scaffolding in place, build your app i
 
 After the build is complete, verify the implementation against the specification. Code is cheap — the LLM generates it in minutes. Confidence that it does what you intended is the bottleneck.
 
-Verification has three layers. Each catches different classes of bugs. Create a separate work folder for each (e.g., `docs/work/v1_1-tests/`, `docs/work/v1_2-e2e/`).
+Verification has four layers. Each catches different classes of bugs. Create a separate work folder for each (e.g., `docs/work/v1_1-tests/`, `docs/work/v1_2-e2e/`).
 
 ### Layer 1: Unit & Integration Tests
 
@@ -300,6 +309,7 @@ Run these against a **dedicated test environment** — never production.
 ### Layer 3: Specification Verification
 
 Walk the original specification feature by feature. For each requirement, confirm the implementation satisfies it:
+
 ```markdown
 | Spec Requirement                          | Status | Notes                      |
 | ----------------------------------------- | ------ | -------------------------- |
@@ -311,34 +321,46 @@ Walk the original specification feature by feature. For each requirement, confir
 
 Any ❌ becomes a bug fix or goes into the next work folder. The specification is the source of truth for what "done" means.
 
+### Layer 4: Perspective Assessment
+
+After tests pass and the specification checklist is verified, run a perspective-based assessment. Feed the specification and key implementation files to Claude with Research enabled and prompt it to assess from multiple professional perspectives — for example, a senior developer focusing on code quality, a QA specialist focusing on test coverage gaps, and a security specialist focusing on authentication and data access policies. The specification is the source of truth for what correct looks like. The perspectives surface blind spots that the other three layers miss.
+
+This is not a replacement for tests or specification verification. Tests prove the code works. Specification verification proves it does what you intended. Perspective assessment asks: what did you miss?
+
+In practice, prioritize the files where bugs would be most costly — security policies, authentication configuration, validation logic, and any business rules from the specification. You don't need to include every file.
+
+> This technique requires Claude's Research mode (available in claude.ai and Claude Desktop, not Claude Code). See the [Claude Code Workflow Guide](docs/claude-code-workflow-guide.md) for guidance on when to use Research mode versus Claude Code.
+
+This technique was adapted from David Cornelson's workflow described in [Building Complex Software with Claude AI](https://www.linkedin.com/pulse/building-complex-software-claude-ai-david-cornelson-ededc/).
+
 ### When to Use Which Layer
 
-Not every app needs all three layers. Match the verification to the architecture:
+Not every app needs all four layers. Match the verification to the architecture:
 
-| App Type                                 | Layer 1  | Layer 2                                                 | Layer 3 |
-| ---------------------------------------- | -------- | ------------------------------------------------------- | ------- |
-| Static site (no backend)                 | Optional | Skip                                                    | Yes     |
-| Frontend + mocked API                    | Yes      | Skip until API exists                                   | Yes     |
-| Frontend + database (Supabase, Firebase) | Yes      | Yes — database constraints and security policies matter | Yes     |
-| Full stack with API server               | Yes      | Yes — test API endpoints against real database          | Yes     |
+| App Type                                 | Layer 1  | Layer 2                                                 | Layer 3 | Layer 4  |
+| ---------------------------------------- | -------- | ------------------------------------------------------- | ------- | -------- |
+| Static site (no backend)                 | Optional | Skip                                                    | Yes     | Optional |
+| Frontend + mocked API                    | Yes      | Skip until API exists                                   | Yes     | Yes      |
+| Frontend + database (Supabase, Firebase) | Yes      | Yes — database constraints and security policies matter | Yes     | Yes      |
+| Full stack with API server               | Yes      | Yes — test API endpoints against real database          | Yes     | Yes      |
 
 ---
 
 ## Summary
 
-| Step | Action                                                 | Produces                                                                           |
-| ---- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| 1    | Create repository on GitHub and clone locally          | Empty repo                                                                         |
-| 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                       |
-| 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                                                  |
-| 4    | Create minimal CLAUDE.md with Invariants               | .claude/CLAUDE.md                                                                  |
-| 5    | Write the specification                                | docs/work/v1-core/specification.md                                                 |
-| 6    | Commit and push                                        | Clean starting point in version control                                            |
-| 7    | Open Claude Code; gaps to spec first, then plan        | Updated specification + docs/work/v1-core/implementation-plan.md                   |
-| 7b   | Resolve gaps; update specification Decisions section   | Complete specification with all decisions tagged _(gap)_                           |
-| 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                                                  |
-| 9    | Build in sessions with summaries                       | Working application                                                                |
-| 10   | Verify against specification                           | Unit/integration tests, E2E data layer tests, specification verification checklist |
+| Step | Action                                                 | Produces                                                                                         |
+| ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| 1    | Create repository on GitHub and clone locally          | Empty repo                                                                                       |
+| 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                                     |
+| 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                                                                |
+| 4    | Create minimal CLAUDE.md with Invariants               | .claude/CLAUDE.md                                                                                |
+| 5    | Write the specification                                | docs/work/v1-core/specification.md                                                               |
+| 6    | Commit and push                                        | Clean starting point in version control                                                          |
+| 7    | Open Claude Code; gaps to spec first, then plan        | Updated specification + docs/work/v1-core/implementation-plan.md                                 |
+| 7b   | Resolve gaps; update specification Decisions section   | Complete specification with all decisions tagged _(gap)_                                         |
+| 8    | After scaffolding: run SummonAIKit, configure Context7 | Full CLAUDE.md, skills, live docs                                                                |
+| 9    | Build in sessions with summaries                       | Working application                                                                              |
+| 10   | Verify against specification                           | Unit/integration tests, E2E data layer tests, specification verification, perspective assessment |
 
 ## What NOT to Do at This Stage
 
