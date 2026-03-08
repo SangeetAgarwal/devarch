@@ -15,8 +15,6 @@ Use this order of authority:
 3. `docs/work/<phase>/specification.md`
 4. `docs/work/<phase>/implementation-plan.md`
 
-The live prompt should be the thinnest layer.
-
 ## Preconditions
 
 Before step execution begins, you should have:
@@ -29,26 +27,12 @@ Before step execution begins, you should have:
 
 ## Human Steps and numbered steps
 
-The implementation plan should have this shape:
-
-```markdown
-## Human Steps
-
-### 1. ...
-### 2. ...
-
-## Step 1 — ...
-## Step 2 — ...
-...
-## Final Done Criteria Verification
-```
-
 Rules during execution:
 
 - `## Human Steps` is not a numbered implementation step.
 - `## Human Steps` is the single consolidated operator checklist for the phase.
 - Later numbered steps must state which Human Steps items are prerequisites for runtime verification.
-- If those prerequisites are not complete, stop and report blocked. Do not guess and do not build around missing setup.
+- If those prerequisites are not complete, stop and report blocked.
 - Do not create new manual pause concepts during execution.
 
 ## One numbered step per Claude session
@@ -58,8 +42,6 @@ Rules during execution:
 - Start the next numbered step in a new session.
 - Do not continue into the next numbered step in the same session.
 
-This keeps execution atomic and reduces drift.
-
 ## Non-negotiable rules
 
 ### 1) The spec is the source of truth
@@ -68,7 +50,7 @@ Claude must not introduce new scope, naming, routes, schema, behavior, security 
 
 ### 2) Stop on gaps
 
-If Claude encounters ambiguity, missing decisions, contradictions, or unstated constraints, it must stop and report the exact gap that must be added to the spec.
+If Claude encounters ambiguity, missing decisions, contradictions, missing baseline dependencies, or unstated constraints, it must stop and report the exact gap that must be added to the spec.
 
 ### 3) Do not build ahead
 
@@ -81,8 +63,6 @@ A step is complete only when the verification required by the implementation pla
 ### 5) Comments are part of the step
 
 If the step touches code and the spec or plan requires comments, Claude must add, update, or remove comments in that same step.
-
-Do not defer comment cleanup to a later pass.
 
 ## Comment policy during execution
 
@@ -97,6 +77,7 @@ Comments are required when they explain:
 - non-obvious security behavior
 - failure-sensitive branches
 - why a workaround exists
+- why a baseline dependency is being reused instead of recreated
 
 Comments are not required for obvious line-by-line narration.
 
@@ -104,130 +85,91 @@ When a step changes a file, Claude must also check whether comments already in t
 
 ## Gap resolution during execution
 
-Implementation-time gaps are constraints, contradictions, or missing decisions that surface only when real code meets real conditions. They differ from planning-time gaps (which surface during plan generation) because they emerge from execution-level reality — a library behaving differently than documented, a provider returning unexpected payloads, an ambiguity that only becomes visible when writing the implementation.
+Implementation-time gaps are constraints, contradictions, missing decisions, missing baseline artifacts, or runtime behaviors that surface only when real code meets real conditions.
 
 ### What Claude must do when a gap is found
 
 1. **Stop.** Do not guess, work around, or make the decision independently.
-2. **Report the gap** in the step completion report under "Spec Gaps Encountered." State:
-   - what the gap is
-   - what spec section is affected
-   - what decision the human needs to make
-   - whether the gap blocks this step, affects later steps, or both
-3. **Mark the step as Blocked or Partially Complete** in the Status field.
+2. **Report the gap** in the step completion report under `Spec Gaps Encountered`.
+3. **Mark the step as `Blocked` or `Partially Complete`.**
 
 ### What the human must do after a gap is reported
 
-1. **Update the specification** with the decision. Tag the new content _(implementation gap)_ to distinguish it from upfront decisions and planning-time gaps.
+1. **Update the specification** with the decision. Tag implementation-time additions `_(implementation gap)_` when appropriate.
 2. **Assess plan impact:**
-   - If the gap changes behavior, scope, constraints, routes, schema, or env vars → regenerate the implementation plan from the updated spec.
-   - If the gap is informational only (e.g., confirming a library works as expected, documenting observed provider behavior) → update the spec, keep the existing plan.
-3. **Re-execute the blocked step** from scratch in a new CLI session. Do not resume a stopped session.
+   - If the gap changes behavior, scope, constraints, routes, schema, env vars, sequencing, or baseline dependencies → regenerate the implementation plan.
+   - If the gap is informational only → update the spec, keep the existing plan.
+3. **Re-execute the blocked step** from scratch in a new CLI session.
 
 ### What must not happen
 
-- A gap must not be resolved only in the step completion report. The spec must be updated.
-- A gap must not be resolved only in the plan. The spec is the source of truth.
-- Claude must not resolve the gap by guessing. Even a reasonable guess is a decision that bypassed the spec.
-- The human must not ask Claude to "just continue past the gap." The gap exists because the spec is incomplete. Completing it is the human's job.
+- A gap must not be resolved only in the step completion report.
+- A gap must not be resolved only in the plan.
+- Claude must not resolve the gap by guessing.
+- The human must not ask Claude to continue past the gap without updating the spec.
 
-### Gap resolution and step numbering
+## Artifact write-back during execution
 
-When a gap causes plan regeneration, the step numbers may change. This is expected. The step completion reports from before the gap remain valid — they record what was actually built under the pre-gap plan. The new plan picks up from wherever the regenerated sequencing requires.
+Step completion reports are evidence, not the sole long-term source of truth.
 
-If previously completed steps are unaffected by the gap, they do not need to be re-executed. The human reviews the regenerated plan and resumes from the first step that changed.
+If execution confirms a durable, load-bearing fact that later steps or later phases depend on, write it back into the authoritative artifacts.
 
-## Default prompt pattern
+Examples:
 
-Use one generic command shape for most numbered steps.
+- an existing helper such as `app/lib/ulid.ts` from an earlier phase
+- a provider quirk that changes callback behavior
+- a local-vs-production behavior that changes verification sequencing
 
-### Preferred prompt
+Promotion rule:
 
-Use this when `CLAUDE.md` already tells Claude how to resolve the stack context, phase spec, phase plan, and step-report location:
+- write durable dependencies, prerequisites, contracts, and invariants back into the **specification**
+- write sequencing or step-level dependency effects back into the **implementation plan**
+- keep the **step completion report** as the evidence trail
+
+## Prompt design
+
+### Default prompt
+
+Use the explicit form. Name every document CLI must read, the step number, and the completion report output path.
 
 ```bash
-claude "Read CLAUDE.md and execute Step <N> for phase PHASE_DIR. After step execution, write step-completion-<N> to docs/context/<phase>/step-completions/step-completion-<N>.md. Create the directory docs/context/<phase>/step-completions if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+claude "Read CLAUDE.md, then <stack-context-path>, then <phase-spec-path>, then <phase-plan-path>. Execute Step <N> only. After step execution, write step-completion-<N> to <step-completions-dir>/step-completion-<N>.md. Create the directory if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
 ```
 
 Example:
 
 ```bash
-claude "Read CLAUDE.md and execute Step 6 for phase docs/work/v1-auth. After step execution, write step-completion-6 to docs/context/v1-auth/step-completions/step-completion-6.md. Create the directory docs/context/v1-auth/step-completions if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/work/v1-auth/specification.md, then docs/work/v1-auth/implementation-plan.md. Execute Step 1 only. After step execution, write step-completion-1 to docs/context/v1-auth/step-completions/step-completion-1.md. Create the directory if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
 ```
 
-### Fallback prompt
+This is the default because it requires no inference. CLI reads exactly what you name, in the order you name it, executes the step you specify, and writes the report to the path you specify.
 
-Use this when the repo contract is not yet strong enough to support the shorter form:
+### Short prompt
+
+Use this only after you have confirmed that your `CLAUDE.md` is strong enough to resolve the stack context path, the phase spec path, the phase plan path, and the step completion report path without help.
 
 ```bash
-claude "Read CLAUDE.md, then STACK_CONTEXT, then PHASE_SPEC, then PHASE_PLAN. Execute Step <N> only. Previous numbered steps are complete. Do not build ahead. If any ambiguity, missing decision, or unstated constraint appears, stop and report the exact gap that must be added to PHASE_SPEC before coding. Do not guess. Run the verification required by the implementation plan. At the end: (1) print a completion report titled step-completion-<N> in session output, (2) write the same report to docs/context/<phase>/step-completions/step-completion-<N>.md, and (3) create docs/context/<phase>/step-completions first if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+claude "Read CLAUDE.md and execute Step <N> for phase <phase-dir>. Write the completion report to <step-completions-dir>/step-completion-<N>.md."
 ```
 
-The fallback prompt stays generic. It does not restate plan detail that should already be in the artifacts.
+If CLI reads the wrong spec, misses the stack context, cannot find the implementation plan, or writes the report to the wrong location, switch back to the default prompt. The short form is a convenience, not a requirement.
 
-## When to add one extra line
+### What the prompt must never do
 
-The generic command should be the default.
+- Restate the spec's scope, constraints, or decisions.
+- Restate plan shape rules or step subsection requirements.
+- Add extra instructions that belong in the spec or the plan.
+- Name more than one step — one step per session, always.
 
-Add one extra line only when one of these is true:
+## Step completion report is required
 
-- the step has a known drift risk
-- the step depends on Human Steps items that are easy to forget
-- the step needs a high-value reminder not yet enforced by `CLAUDE.md`, the stack context, the spec, or the plan
-- the step has unusual comment obligations that are easy to miss
+After every step, Claude must write a completion report to:
 
-Example:
+`docs/context/<phase>/step-completions/step-completion-<N>.md`
 
-```text
-Before coding, confirm that the prerequisites listed under this step's 'Prerequisites from Human Steps' section are reflected in the environment and local setup.
-```
+If the directory does not exist, Claude must create it.
 
-That is enough. Do not turn the live prompt into a second plan.
-
-## Step completion report file
-
-Store step reports under a predictable phase-specific path:
-
-- `docs/context/<phase>/step-completions/step-completion-<N>.md`
-
-Example:
-
-- `docs/context/v1-auth/step-completions/step-completion-6.md`
-
-Rules:
-
-- create `docs/context/<phase>/step-completions` on the first run if it does not exist
-- keep it concise
-- no raw diffs
-- no raw build logs
-- no screenshots
-- avoid machine-specific absolute paths
-- commit the report alongside the step’s code changes
-
-## Completion report standard
-
-Claude must both print and persist a structured completion report.
-
-Required sections:
-
-1. Status
-2. What changed
-3. Why
-4. Commands run
-5. Verification results
-6. Stack-context compliance checks
-7. Runtime readiness
-8. Human/manual setup
-9. Comment updates
-10. Comment verification
-11. Gaps / blockers / unresolved items
-12. Scope drift
-13. Work introduced early from later steps
-14. Spec gaps encountered
-
-### Recommended structure
-
-Use this shape:
+### Required completion-report structure
 
 ```markdown
 # Step Completion — Step <N> — <Step Title>
@@ -245,10 +187,7 @@ Use this shape:
 - Requirement(s), constraint(s), or plan objective this step implements:
 - Reason these changes were necessary:
 
-## Commands Run
-- ...
-
-## Verification Results
+## Verification
 - Build check:
 - Runtime check:
 - Manual verification:
@@ -256,156 +195,27 @@ Use this shape:
 - Comment verification:
 - Result:
 
-## Stack-Context Compliance Checks
-- ...
-
-## Runtime Readiness
-- What verified successfully:
-- What remains blocked pending Human Steps or external setup:
-- Whether the step is code-complete, runtime-complete, or only partially complete:
-
-## Human/Manual Setup
-- No new human/manual setup introduced by this step
-- Previously known remaining setup that still applies:
-
-## Comment Updates
-- ...
-
-## Comment Verification
-- ...
-
 ## Gaps / Blockers / Unresolved Items
 - Anything not completed in this step:
 - External prerequisites still missing:
 - Known risks or uncertainties:
 - Anything the next step must account for:
 
-## Scope Drift
-- ...
-
-## Work Introduced Early from Later Steps
-- ...
-
 ## Spec Gaps Encountered
-- ...
+- None, or the exact gap that must be resolved in the spec
+
+## Artifact Write-Back Required
+- None, or the durable dependency / invariant / prerequisite that must be promoted into the spec or plan
+
+## Evidence
+- Commands run:
+- Key outputs or observations:
 ```
 
-### Status
+Rule:
 
-Use these values only:
+- If any required verification could not be completed, or any external prerequisite still blocks part of the step outcome, the report must mark the step as `Partially Complete` or `Blocked` and explain why.
 
-- **Complete**
-- **Partially Complete**
-- **Blocked**
+## Summary
 
-If any required verification could not be completed, or any external prerequisite still blocks part of the step outcome, the report must mark the step as **Partially Complete** or **Blocked** and explain why.
-
-Do not imply full completion when meaningful gaps remain.
-
-### What changed
-
-This section is required.
-
-State clearly:
-
-- which files were created, modified, or removed
-- what concrete implementation changes were made
-- what was intentionally not changed
-
-Do not paste raw diffs. Summarize the actual implementation delta.
-
-### Why
-
-This section is required.
-
-State clearly:
-
-- which requirement, constraint, invariant, or plan goal the changes implement
-- why the chosen changes were necessary in this step
-- why the step stopped where it did if only partial completion was possible
-
-This is the traceability bridge back to the spec and plan.
-
-### Verification results
-
-A successful build is not the same as runtime readiness.
-
-If the step depends on external resources such as databases, secrets, provider consoles, namespaces, storage bindings, or environment files, the report must explicitly state:
-
-- what verified successfully
-- what remains blocked pending Human Steps
-- whether the step is complete for code generation but not yet complete for runtime integration
-
-### Human/manual setup
-
-Use this wording:
-
-- **No new human/manual setup introduced by this step**
-- followed by **Previously known remaining setup that still applies**, if any
-
-Only list previously known setup items that still materially affect:
-
-- this numbered step
-- the immediate next numbered step
-- runtime readiness
-
-Do not invent new operator tasks unless the spec or plan explicitly requires them.
-
-### Comment updates
-
-List the comments that were added, updated, or removed in this step.
-
-Examples:
-
-- module comment added in `session.server.ts` to explain signed-cookie session strategy
-- inline comment updated in callback loader to explain `Response` re-throw contract
-- stale comment removed from auth helper because it no longer matches the implementation
-
-If the step required no comment changes, say so explicitly only after checking the touched files.
-
-### Comment verification
-
-State whether the step satisfied the plan’s `Required Comment Updates` subsection.
-
-Confirm explicitly:
-
-- which required comments were added or updated
-- whether touched files were checked for stale comments
-- whether any comment remains inaccurate or unresolved
-
-A step that changes trust-sensitive code is not fully complete if the required comments are still missing or stale.
-
-### Gaps / blockers / unresolved items
-
-This section is required.
-
-State clearly:
-
-- anything not completed in this step
-- anything blocked by external setup or unmet prerequisites
-- any uncertainty that should be carried forward explicitly
-- any follow-up the next step must account for
-
-If there are no gaps, say so plainly.
-
-## Local vs remote environment note
-
-Local and remote Cloudflare resources are not the same thing.
-
-This matters especially for D1:
-
-- `--local` commands affect the local development database
-- `--remote` commands affect the deployed Cloudflare database
-
-A successful remote migration or seed does not populate the local database used by local development.
-
-For D1-backed apps, verify both:
-
-- local runtime readiness
-- remote or deployed runtime readiness
-
-## Deployment note for framework-generated Cloudflare configs
-
-For framework builds that generate deployment config, the safe deploy command may be the repo script rather than raw `wrangler deploy`.
-
-Prefer the repo’s deployment script when deployment depends on generated build output or generated Wrangler config.
+Execute one numbered step at a time. Stop on gaps. Keep the prompt minimal. Persist evidence. Promote durable facts out of step reports and back into the authoritative artifacts when future work depends on them.

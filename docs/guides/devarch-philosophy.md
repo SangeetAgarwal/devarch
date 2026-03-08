@@ -1,188 +1,129 @@
-# DevArch Philosophy: Specification-Driven Development in the Agentic Era
+# DevArch Philosophy
 
-## The Shift
+## Core Principle
 
-For decades, the developer was the bottleneck. Code took time to write, so every methodology optimized for the human at the keyboard. TDD said: write the test first, because it forces you to think about behavior before implementation. The test was the design step. The code followed.
+Generating code is cheap. Trusting it is where the work is. The specification is how you get there.
 
-That made sense when humans wrote the code.
+DevArch treats the artifact set as the primary deliverable. Code is downstream of the artifacts.
 
-In agentic development, the LLM writes the code. It generates implementation in minutes — sometimes seconds. The human no longer needs a forcing function to think before coding, because the human isn't coding. The human is specifying.
+---
 
-The bottleneck has moved. Code is cheap. Confidence that the code does what you intended is expensive.
+## Artifact Stack
 
-## Why Specifications Replace TDD's Forcing Function
+1. `CLAUDE.md` — repo operating contract
+2. `docs/architecture/stack-context.md` — runtime and stack truth
+3. `docs/work/<phase>/specification.md` — phase scope, contracts, sequencing, done criteria
+4. `docs/work/<phase>/implementation-plan.md` — ordered execution derived from the spec
+5. `docs/context/<phase>/step-completions/` — execution evidence
+6. `docs/context/<phase>/gaps/` — durable gap evidence when needed
 
-TDD's core insight was never about tests. It was about design. Writing a test first forces you to answer: What should this do? What are the inputs? What are the valid outputs? What are the edge cases? You can't write a test without answering those questions.
+Promote durable truth upward. Evidence does not replace authoritative artifacts.
 
-A specification answers the same questions — at a higher level. Field-level validation rules, data model constraints, security policies, business rules, edge cases, explicit scope boundaries. Everything a test forces you to think about, the specification captures before the LLM generates a single line of code.
+---
 
-The difference:
+## Planning Principle
 
-|                       | TDD                             | Specification-Driven                              |
-| --------------------- | ------------------------------- | ------------------------------------------------- |
-| **Design happens at** | Test level (function/method)    | Specification level (feature/system)              |
-| **Who implements**    | Human writes code to pass tests | LLM implements from specification                 |
-| **Tests are**         | The design step                 | The verification step                             |
-| **Entry point**       | Test → Code → Refactor          | Spec → Plan → Build → Test → Verify               |
-| **Feedback loop**     | Red → Green → Refactor          | Spec → Build → Test → Gap → Update Spec → Re-test |
+The specification is the source of truth.
 
-Both approaches converge on verified, correct code. They enter the loop at different points.
+If plan generation would require guessing:
+1. tighten the spec first
+2. then generate the plan from the revised spec
 
-## The DevArch Flow
+The plan does not invent scope, contracts, routes, environment values, or verification.
 
-```
-Domain Discovery → Specification → Implementation Plan → Gap Resolution
-    → Refined Specification → Build → Tests → Specification Verification → Ship
-                                 ↑               |
-                                 └── Gap Found ──┘
-```
+---
 
-Each step has a purpose:
+## Execution Principle
 
-**Domain Discovery** (optional — for complex domains)
+Run one numbered step per session.
 
-Event storming and domain modeling surface the business language, boundaries, invariants, and policies before any technical decisions are made. For simple CRUD apps, skip this. For complex domains with multiple actors, bounded contexts, and intricate business rules, this is where you prevent the most expensive mistakes.
+A step is not complete until:
+- required code/doc changes are made
+- required verification is run
+- the step-completion artifact is written
+- any discovered durable facts are written back into the authoritative artifact set when needed
 
-**Specification**
+---
 
-The human captures intent, constraints, decisions, and scope. Field-level detail. Validation rules. Data model with ownership (what sets each field — client, database default, trigger, checked by security policy). External setup steps. Explicit out of scope. This is the design step. Everything the LLM needs to generate precise code rather than generic code.
+## Human Steps Principle
 
-**Implementation Plan**
+Human steps are listed once at the beginning of the implementation plan.
 
-The LLM reads the specification and generates a phased plan. This is where gaps surface — decisions the specification didn't address.
+They are not numbered implementation steps.
+They are not repeated as embedded pause sections throughout the plan.
 
-**Gap Resolution**
+Later runtime steps reference the human steps they depend on.
 
-Gaps surface at two distinct points: during plan generation and during step execution. The resolution workflow is the same — update the spec first — but the trigger and downstream impact differ.
+---
 
-*Planning-time gaps* are decisions the specification didn't address that the LLM discovers while generating the implementation plan. The human reviews them, makes decisions, and updates the specification. Every planning-time decision is tagged _(gap)_ so you can track what was upfront vs surfaced during planning. Over time, the pattern of gaps reveals missing sections in your specification template.
+## Gap Resolution Principle
 
-When the LLM generates the implementation plan and discovers gaps during that process, it must write them into the specification immediately — before completing the plan. The plan may reference gaps in the spec, but the spec is written first. This prevents gaps from living only in the plan, where they become implementation details rather than specification-level decisions the human must resolve. The CLAUDE.md Invariants section enforces this sequencing.
+Gaps surface in two places:
+- during plan generation
+- during execution, including during human/manual work
 
-*Implementation-time gaps* are constraints, contradictions, or missing decisions that surface only when real code meets real conditions — a library API that behaves differently than documented, a runtime constraint the spec didn't anticipate, a provider returning unexpected payloads, or an ambiguity that only becomes visible when writing the actual implementation. These are not planning failures; they are the inherent gap between specification-level reasoning and execution-level reality.
+The rule is the same:
 
-When the LLM encounters a gap during step execution, it must stop and report the exact gap. The resolution workflow:
+1. stop the affected step
+2. record the finding as evidence
+3. update the specification first
+4. update the plan if execution changed
+5. update stack context or `CLAUDE.md` if the finding is broader than the phase
+6. resume from the first impacted step
 
-1. The LLM stops the current step and reports the gap in the completion report.
-2. The human updates the specification with the new decision. Implementation-time gaps are tagged _(implementation gap)_ to distinguish them from planning-time gaps.
-3. If the gap changes behavior, constraints, or scope, the implementation plan must be regenerated from the updated spec.
-4. If the gap is informational only (e.g., confirming a library works as expected), the spec is updated and execution continues with the next step in a new session.
-5. The blocked step is re-executed from scratch in a new session after the spec and plan are updated.
+---
 
-The key invariant is the same as for planning-time gaps: the specification is updated first. A gap that lives only in a step completion report or only in the plan is a decision that bypassed the spec — and that breaks the single-source-of-truth guarantee.
+## Human-Discovered Runtime Constraints
 
-**Refined Specification**
+Human/manual work is a discovery surface.
 
-The specification is now complete — all decisions made, all gaps resolved. It becomes the acceptance criteria for the build.
+If a human step reveals a durable runtime constraint — for example:
+- HTTPS is required locally
+- a provider requires an exact callback pattern
+- a certificate trust issue changes runtime prerequisites
+- an environment or secret contract is incomplete
+- a baseline dependency was assumed but not captured
 
-**Build**
+that finding must be promoted into the authoritative artifacts.
 
-The LLM implements from the refined specification. The human reviews, directs, and makes architectural decisions the LLM can't make on its own. CLAUDE.md rules catch known problems (verify files after scaffolding, surface external setup steps, stop on ambiguity).
+This is not a side note. It is a first-class DevArch gap.
 
-When the LLM encounters an implementation-time gap — an ambiguity, a missing decision, a contradiction, or a runtime constraint the spec didn't anticipate — it stops and reports the gap. The human resolves it in the spec, regenerates the plan if the gap changes behavior or scope, and re-executes the blocked step. This is the feedback loop shown in the flow diagram: Build → Gap Found → back to Specification. The build does not proceed past a gap by guessing.
+---
 
-**Tests**
+## Artifact Write-Back Rule
 
-Four layers, each catching different classes of bugs:
+Step-completion files and gap notes are evidence, not the final home of durable truth.
 
-- **Unit and integration tests** verify application logic with mocked external services. The app sends the right calls.
-- **E2E data layer tests** verify real database constraints, security policies, triggers, and data shapes. The infrastructure enforces the rules.
-- **Specification verification** walks the original spec feature by feature. The app does what was intended.
-- **Perspective assessment** feeds the specification and key implementation files to Claude with Research enabled, prompting evaluation from multiple professional perspectives (senior developer, QA specialist, security specialist). Surfaces blind spots the other three layers miss.
+If execution reveals a durable fact that later work depends on, promote it into:
+- the spec
+- the implementation plan if execution changes
+- the stack context if runtime truth changes
+- `CLAUDE.md` or DevArch guides if the process rule is reusable
 
-**Ship**
+---
 
-When all four layers pass, you have confidence. Not hope — confidence. The spec defined what correct looks like. The tests proved it. The E2E tests proved the infrastructure enforces it. The perspective assessment caught what you didn't think to test.
+## Comment Policy Principle
 
-## Why Tests Come After the Build
+Comments are part of implementation trust.
 
-TDD purists will object. Tests should come first. You're doing it backwards.
+Required comments explain:
+- contracts
+- invariants
+- trust boundaries
+- provider quirks
+- non-obvious implementation choices
 
-Here's why the objection doesn't apply:
+Comments do not narrate obvious code.
 
-**In TDD, the test is the only design artifact.** Without the test, the developer has no formal statement of what the code should do. The test forces design thinking. Remove it and you get cowboy coding.
+---
 
-**In DevArch, the specification is the design artifact.** The human has already done the design thinking — in the spec. Validation rules are explicit. Data constraints are explicit. Security policies are explicit. Edge cases are explicit. The LLM reads the spec and implements. The spec did what the test does in TDD: force the human to think before code exists.
+## Completion Principle
 
-Writing tests before the build in agentic development means writing tests against code that doesn't exist yet, in a codebase the LLM hasn't scaffolded yet, with component structures the LLM hasn't decided yet. You'd be guessing at implementation details. That's the opposite of what TDD intended.
+A step or phase is not complete merely because code exists.
 
-Instead:
-
-1. Specification captures design intent (replaces TDD's forcing function)
-2. LLM implements from specification
-3. Tests verify the implementation matches the specification
-4. Failures feed back into the specification (same loop as TDD, different entry point)
-
-The feedback loop is intact. The entry point shifted from test to specification. The forcing function shifted from code-level tests to system-level specifications.
-
-## Why This Works with DDD and Event Storming
-
-Domain-Driven Design and event storming are inherently specification-level activities. You're not designing tests — you're discovering domains, boundaries, invariants, and policies. These naturally produce specifications, not test cases.
-
-The flow from event storm to specification to implementation to tests is the natural order when the domain is complex:
-
-1. **Event storm** — discover what happens in the domain (domain events, commands, actors, policies)
-2. **Domain model** — structure what you discovered (aggregates, bounded contexts, value objects, invariants)
-3. **Specification** — scope what to build (which slice of the domain, which features, which constraints)
-4. **Build** — LLM implements the scoped slice
-5. **Test** — verify the implementation honors the domain model and specification
-
-Tests at the end verify that the domain's invariants are enforced, not that you thought about them. You thought about them during the event storm and captured them in the specification. Tests confirm the LLM respected what you specified.
-
-## The Self-Improving Loop
-
-Every project reveals gaps in the methodology:
-
-| Problem Encountered                                                   | Convention Added                                                                        |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| LLM said "feature complete" without configuring external services     | External Setup convention + CLAUDE.md completion rules                                  |
-| Gap decisions lost in chat history                                    | Gap Resolution convention with _(gap)_ tags                                             |
-| Config files lost during scaffolding                                  | CLAUDE.md rule: verify files after operations                                           |
-| "Set by RLS" misread — LLM skipped setting user_id                    | Field ownership guidance in specification                                               |
-| Feature added without updating spec                                   | CLAUDE.md rule: update spec before/alongside code                                       |
-| Mocked tests passed but database rejected inserts                     | E2E data layer testing convention                                                       |
-| LLM wrote gaps into implementation plan before updating specification | Invariant: gap analysis updates spec before plan; spec is sole source of truth for gaps |
-| Implementation-time gap had no resolution workflow — LLM guessed or stopped with no next step | Implementation-time gap workflow: stop, report, update spec, regen plan if needed, re-execute |
-
-Each convention prevents a class of problems across all future projects. The specification template grows. The CLAUDE.md rules accumulate. The methodology improves with every build.
-
-This is not self-healing. DevArch doesn't catch problems at runtime. It prevents problems you've seen before through accumulated conventions. Institutional memory, encoded in documents, enforced by LLM rules.
-
-## What DevArch Is Not
-
-**Not TDD.** Tests verify — they don't drive design. The specification drives design.
-
-**Not agent-driven governance.** No autonomous agents auditing your code. Structured documents keep the human in the governance seat. The LLM implements, the human governs.
-
-**Not framework-specific.** The methodology works with React, ASP.NET, Python, or anything else. Specifications, gap resolution, external setup, and verification are universal.
-
-**Not a replacement for domain expertise.** The LLM can generate code, but it can't decide where bounded context boundaries go, what invariants matter, or what security policies to enforce. Those decisions require someone who understands the domain. DevArch is a workflow for capturing and transmitting that expertise to the LLM.
-
-## What DevArch Can't Prevent
-
-CLAUDE.md invariants prevent structural failures — the agent won't skip gap analysis, won't say "feature complete" without surfacing external setup steps, won't introduce decisions that aren't in the specification. These are rule-based guardrails and they work.
-
-What they can't prevent is the model degrading mid-session. This happens unpredictably and the patterns are recognizable:
-
-The agent starts taking shortcuts — simplifying implementations that were previously detailed, removing test files to get builds passing, or generating increasingly generic code that ignores project-specific conventions.
-
-The agent ignores invariants it followed earlier in the same session — writing gaps into the implementation plan instead of the specification, or declaring work complete without checking external setup.
-
-The agent enters what David Cornelson calls "hurry up mode" — racing to complete tasks by cutting corners rather than maintaining quality. This often manifests as the agent deleting or gutting test files to make builds pass, or collapsing multi-step processes into single steps that skip validation.
-
-The correct response is to stop. Commit what you have. End the session. Write a session summary. Start fresh. The cost of a new session is a few minutes of context loading. The cost of letting a degraded session continue is hours of work that needs to be undone.
-
-This is operational knowledge, not methodology. DevArch structures how you work. Knowing when to stop working is judgment that no document can automate. Pay attention. When the quality drops, quit.
-
-This pattern was first described by David Cornelson in [Building Complex Software with Claude AI](https://www.linkedin.com/pulse/building-complex-software-claude-ai-david-cornelson-ededc/).
-
-## The Core Claim
-
-In agentic development, the specification is the highest-leverage artifact. It is simultaneously:
-
-- **Input** — the LLM reads it to generate implementation
-- **Design** — the human captures intent, constraints, and decisions before code exists
-- **Acceptance criteria** — after the build, the spec defines what "done" means
-- **Living documentation** — gap resolution and spec-sync keep it current as the project evolves
-
-Everything else — implementation plans, CLAUDE.md rules, tests, verification checklists — serves the specification. The specification is the single source of truth. The methodology exists to keep it that way.
+Completion requires:
+- verified behavior
+- surfaced human tasks
+- honest gap reporting
+- artifact consistency
+- evidence written to the repo
