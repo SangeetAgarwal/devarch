@@ -33,6 +33,8 @@ Both approaches converge on verified, correct code. They enter the loop at diffe
 ```
 Domain Discovery → Specification → Implementation Plan → Gap Resolution
     → Refined Specification → Build → Tests → Specification Verification → Ship
+                                 ↑               |
+                                 └── Gap Found ──┘
 ```
 
 Each step has a purpose:
@@ -51,9 +53,23 @@ The LLM reads the specification and generates a phased plan. This is where gaps 
 
 **Gap Resolution**
 
-The human reviews gaps, makes decisions, and updates the specification. Every decision is tagged _(gap)_ so you can track what was upfront vs surfaced during planning. Over time, the pattern of gaps reveals missing sections in your specification template.
+Gaps surface at two distinct points: during plan generation and during step execution. The resolution workflow is the same — update the spec first — but the trigger and downstream impact differ.
+
+*Planning-time gaps* are decisions the specification didn't address that the LLM discovers while generating the implementation plan. The human reviews them, makes decisions, and updates the specification. Every planning-time decision is tagged _(gap)_ so you can track what was upfront vs surfaced during planning. Over time, the pattern of gaps reveals missing sections in your specification template.
 
 When the LLM generates the implementation plan and discovers gaps during that process, it must write them into the specification immediately — before completing the plan. The plan may reference gaps in the spec, but the spec is written first. This prevents gaps from living only in the plan, where they become implementation details rather than specification-level decisions the human must resolve. The CLAUDE.md Invariants section enforces this sequencing.
+
+*Implementation-time gaps* are constraints, contradictions, or missing decisions that surface only when real code meets real conditions — a library API that behaves differently than documented, a runtime constraint the spec didn't anticipate, a provider returning unexpected payloads, or an ambiguity that only becomes visible when writing the actual implementation. These are not planning failures; they are the inherent gap between specification-level reasoning and execution-level reality.
+
+When the LLM encounters a gap during step execution, it must stop and report the exact gap. The resolution workflow:
+
+1. The LLM stops the current step and reports the gap in the completion report.
+2. The human updates the specification with the new decision. Implementation-time gaps are tagged _(implementation gap)_ to distinguish them from planning-time gaps.
+3. If the gap changes behavior, constraints, or scope, the implementation plan must be regenerated from the updated spec.
+4. If the gap is informational only (e.g., confirming a library works as expected), the spec is updated and execution continues with the next step in a new session.
+5. The blocked step is re-executed from scratch in a new session after the spec and plan are updated.
+
+The key invariant is the same as for planning-time gaps: the specification is updated first. A gap that lives only in a step completion report or only in the plan is a decision that bypassed the spec — and that breaks the single-source-of-truth guarantee.
 
 **Refined Specification**
 
@@ -62,6 +78,8 @@ The specification is now complete — all decisions made, all gaps resolved. It 
 **Build**
 
 The LLM implements from the refined specification. The human reviews, directs, and makes architectural decisions the LLM can't make on its own. CLAUDE.md rules catch known problems (verify files after scaffolding, surface external setup steps, stop on ambiguity).
+
+When the LLM encounters an implementation-time gap — an ambiguity, a missing decision, a contradiction, or a runtime constraint the spec didn't anticipate — it stops and reports the gap. The human resolves it in the spec, regenerates the plan if the gap changes behavior or scope, and re-executes the blocked step. This is the feedback loop shown in the flow diagram: Build → Gap Found → back to Specification. The build does not proceed past a gap by guessing.
 
 **Tests**
 
@@ -124,6 +142,7 @@ Every project reveals gaps in the methodology:
 | Feature added without updating spec                                   | CLAUDE.md rule: update spec before/alongside code                                       |
 | Mocked tests passed but database rejected inserts                     | E2E data layer testing convention                                                       |
 | LLM wrote gaps into implementation plan before updating specification | Invariant: gap analysis updates spec before plan; spec is sole source of truth for gaps |
+| Implementation-time gap had no resolution workflow — LLM guessed or stopped with no next step | Implementation-time gap workflow: stop, report, update spec, regen plan if needed, re-execute |
 
 Each convention prevents a class of problems across all future projects. The specification template grows. The CLAUDE.md rules accumulate. The methodology improves with every build.
 

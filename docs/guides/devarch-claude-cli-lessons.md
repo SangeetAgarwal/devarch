@@ -97,6 +97,8 @@ Required sections:
 11. State trust assumptions when HTML is rendered from markdown or content.
 12. Focus guidance on failure modes that threaten correctness, trust, or debuggability.
 13. Ignore cosmetic nits until they become operationally expensive.
+14. Check step completion reports before asserting a cross-phase dependency is missing.
+15. Implementation-time gaps follow the same invariant as planning-time gaps: update the spec first, then regen the plan if behavior changed.
 
 ## Platform lessons from Cloudflare setup
 
@@ -121,6 +123,35 @@ Required sections:
 5. Keep infrastructure setup aligned with actual project needs.
    - extra services are fine if they are intentional
    - but treat them as platform dependencies, not accidental blockers
+
+## Cross-phase artifact verification
+
+When a later phase references an artifact from an earlier phase — a helper module, a migration, a configuration file — the reviewer's instinct is to check the earlier phase's spec and implementation plan. If the artifact doesn't appear there, the reviewer may conclude it doesn't exist and raise a false alarm.
+
+Step completion reports prevent this.
+
+### The pattern that fails
+
+1. Phase 2 implementation plan references `app/lib/ulid.ts` as "existing."
+2. Reviewer checks Phase 1 spec, remediation spec, and mobile nav fix spec. None mention `ulid.ts`.
+3. Reviewer asserts the file doesn't exist and recommends adding it to the plan.
+4. The file does exist — it was created during Phase 1 execution and documented in the Phase 1 step completion report.
+
+The reviewer had access to the specs but not the step completion reports. The specs describe what to build. The step completion reports describe what was actually built. These are different artifacts with different purposes.
+
+### The pattern that works
+
+Before asserting a cross-phase dependency is missing:
+
+1. Check the relevant phase's step completion reports — these are the durable record of what was actually created.
+2. If no step completion report is available, ask whether the artifact exists rather than asserting it doesn't.
+3. If the artifact does exist, note where it was created so the reference in the current plan is traceable.
+
+### Why this matters for DevArch training
+
+This is one of the first things to teach someone learning DevArch: the spec says what to build, the plan says in what order, and the step completion reports say what actually happened. All three are needed for a complete picture. Reviewing only the spec and plan gives you intent. Reviewing the step completion reports gives you ground truth.
+
+This also demonstrates why step completion reports are first-class artifacts, not optional paperwork. Without them, cross-phase reviews require checking the file system directly — which breaks down when the reviewer doesn't have repo access (for example, when reviewing in a chat session with Claude).
 
 ## Bugfix slice pattern
 
