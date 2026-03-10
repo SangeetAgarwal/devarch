@@ -4,7 +4,7 @@ This guide covers one job only: generating a trustworthy implementation plan fro
 
 ## Core idea
 
-Generating code is cheap. Trusting it is where the work is. The specification is how you get there.
+Generated code is cheap. Trusting it is where the work is. The specification is how you get there.
 
 That means:
 
@@ -20,8 +20,10 @@ Use this order of authority:
 
 1. `CLAUDE.md`
 2. `docs/architecture/stack-context.md`
-3. `docs/work/<phase>/specification.md`
-4. the generated `docs/work/<phase>/implementation-plan.md`
+3. `docs/architecture/domain.md`
+4. `docs/work/<phase>/specification.md`
+5. the generated `docs/work/<phase>/implementation-plan.md`
+6. `docs/architecture/project-architecture.md` when the phase touches integrations, external systems, phasing, or architecture-level ownership boundaries
 
 Rules:
 
@@ -91,10 +93,10 @@ That section should include:
 Use a table like this:
 
 ```markdown
-| Work | Depends On (Code) | Depends On (Human Steps) |
-|------|-------------------|--------------------------|
-| Session module | None | Human Steps §1 and §4 for runtime verification |
-| Provider callback route | Auth service, session module | Human Steps §1, §2, §4, and §5 |
+| Work                    | Depends On (Code)            | Depends On (Human Steps)                       |
+| ----------------------- | ---------------------------- | ---------------------------------------------- |
+| Session module          | None                         | Human Steps §1 and §4 for runtime verification |
+| Provider callback route | Auth service, session module | Human Steps §1, §2, §4, and §5                 |
 ```
 
 ### 2. Sequencing rules
@@ -117,11 +119,15 @@ The spec should require a plan shape like this:
 ## Human Steps
 
 ### 1. ...
+
 ### 2. ...
 
 ## Step 1 — ...
+
 ## Step 2 — ...
+
 ...
+
 ## Final Done Criteria Verification
 ```
 

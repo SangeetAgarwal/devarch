@@ -36,6 +36,8 @@ Suggested path:
 - `docs/work/<phase>/specification.md`
 - `docs/work/<phase>/implementation-plan.md`
 - `docs/architecture/stack-context.md`
+- `docs/architecture/domain.md`
+- `docs/architecture/project-architecture.md`
 - `CLAUDE.md`
 - other:
 

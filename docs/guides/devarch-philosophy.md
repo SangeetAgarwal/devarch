@@ -1,129 +1,129 @@
-# DevArch Philosophy
+# DevArch Philosophy: Specification-Driven Development in the Agentic Era
 
-## Core Principle
+## The shift
 
-Generating code is cheap. Trusting it is where the work is. The specification is how you get there.
+In agentic development, code generation is cheap. Confidence that the code does what you intended is expensive.
 
-DevArch treats the artifact set as the primary deliverable. Code is downstream of the artifacts.
+DevArch moves the design burden upward into artifacts the model can read, follow, and verify:
 
----
+- the specification captures intent, constraints, scope, and acceptance criteria
+- the implementation plan captures execution order and verification boundaries
+- step-completion reports capture what actually happened during execution
+- `CLAUDE.md` carries durable operating rules
 
-## Artifact Stack
+## The core claim
 
-1. `CLAUDE.md` — repo operating contract
-2. `docs/architecture/stack-context.md` — runtime and stack truth
-3. `docs/work/<phase>/specification.md` — phase scope, contracts, sequencing, done criteria
-4. `docs/work/<phase>/implementation-plan.md` — ordered execution derived from the spec
-5. `docs/context/<phase>/step-completions/` — execution evidence
-6. `docs/context/<phase>/gaps/` — durable gap evidence when needed
+The specification is the highest-leverage artifact. It is simultaneously:
 
-Promote durable truth upward. Evidence does not replace authoritative artifacts.
+- input to the LLM
+- design documentation
+- acceptance criteria
+- living documentation
 
----
+Everything else serves the specification.
 
-## Planning Principle
+## The DevArch flow
 
-The specification is the source of truth.
+```text
+Domain Discovery → Specification → Implementation Plan → Build → Verify
+                          ↑              ↓            ↓
+                     Gap Resolution   Execution    Step Evidence
+```
 
-If plan generation would require guessing:
-1. tighten the spec first
-2. then generate the plan from the revised spec
+## Artifact roles
 
-The plan does not invent scope, contracts, routes, environment values, or verification.
+Each artifact has a different job:
 
----
+- **CLAUDE.md** — repo-wide operating contract and durable rules
+- **stack-context.md** — runtime truth: framework versions, environment contracts, provider quirks
+- **domain.md** — Ubiquitous Language, domain model, and bounded-context boundaries
+- **project-architecture.md** — integration ownership, external-system responsibilities, and phasing map
+- **Specification** — authoritative scope, contracts, decisions, prerequisites, baseline dependencies, done criteria
+- **Implementation plan** — ordered execution, step dependencies, verification sequence, comment obligations
+- **Step-completion reports** — evidence of what changed, why, what passed, and what was blocked
 
-## Execution Principle
+A complete DevArch review often needs all four.
 
-Run one numbered step per session.
+## Evidence is not authority
 
-A step is not complete until:
-- required code/doc changes are made
-- required verification is run
-- the step-completion artifact is written
-- any discovered durable facts are written back into the authoritative artifact set when needed
+A step-completion report is evidence, not the long-term source of truth.
 
----
+This distinction matters when a later phase depends on an earlier artifact that was created during execution but never promoted into the main artifact set.
 
-## Human Steps Principle
+Example pattern:
 
-Human steps are listed once at the beginning of the implementation plan.
+1. a helper such as `app/lib/ulid.ts` is created in an earlier phase
+2. the change is documented in a step-completion report
+3. a later phase depends on that helper
+4. if the helper is not written back into the current spec or plan, later review may falsely treat it as an invention or hidden assumption
 
-They are not numbered implementation steps.
-They are not repeated as embedded pause sections throughout the plan.
+The DevArch rule is:
 
-Later runtime steps reference the human steps they depend on.
+**discover in execution → verify in evidence → promote into authoritative artifacts**
 
----
+## Gap resolution
 
-## Gap Resolution Principle
+Gaps surface at two points:
 
-Gaps surface in two places:
-- during plan generation
-- during execution, including during human/manual work
+### Planning-time gaps
 
-The rule is the same:
+The specification is incomplete for plan generation.
 
-1. stop the affected step
-2. record the finding as evidence
+Workflow:
+
+1. stop plan generation
+2. update the specification
+3. regenerate the plan
+
+### Implementation-time gaps
+
+Execution reveals a contradiction, missing decision, missing baseline dependency, or runtime behavior the spec did not capture.
+
+Workflow:
+
+1. stop the step
+2. record the gap in the step completion report
 3. update the specification first
-4. update the plan if execution changed
-5. update stack context or `CLAUDE.md` if the finding is broader than the phase
-6. resume from the first impacted step
+4. regenerate the plan if behavior, sequencing, scope, or baseline dependencies changed
+5. re-execute the blocked step in a new session
 
----
+## Artifact write-back
 
-## Human-Discovered Runtime Constraints
+If execution reveals a durable, load-bearing fact that later work depends on, DevArch requires writing it back into the authoritative artifact set.
 
-Human/manual work is a discovery surface.
+Promote it to the right place:
 
-If a human step reveals a durable runtime constraint — for example:
-- HTTPS is required locally
-- a provider requires an exact callback pattern
-- a certificate trust issue changes runtime prerequisites
-- an environment or secret contract is incomplete
-- a baseline dependency was assumed but not captured
+- **specification** for dependencies, contracts, invariants, prerequisites, and baseline capabilities
+- **implementation plan** for sequencing changes and step-level dependency visibility
+- **step-completion report** remains the provenance record
 
-that finding must be promoted into the authoritative artifacts.
+This keeps future planning from guessing and keeps the main artifact set aligned with what the repo actually depends on.
 
-This is not a side note. It is a first-class DevArch gap.
+## Why this matters
 
----
+Without write-back, the methodology drifts:
 
-## Artifact Write-Back Rule
+- the spec describes only original intent
+- the plan describes only one moment in time
+- the step report becomes the hidden place where critical truths live
 
-Step-completion files and gap notes are evidence, not the final home of durable truth.
+That weakens trust.
 
-If execution reveals a durable fact that later work depends on, promote it into:
-- the spec
-- the implementation plan if execution changes
-- the stack context if runtime truth changes
-- `CLAUDE.md` or DevArch guides if the process rule is reusable
+With write-back:
 
----
+- the spec stays authoritative
+- the plan stays execution-relevant
+- the step reports stay evidentiary
+- future phases inherit a trustworthy baseline
 
-## Comment Policy Principle
+## Practical summary
 
-Comments are part of implementation trust.
+DevArch is not just “spec first.” It is:
 
-Required comments explain:
-- contracts
-- invariants
-- trust boundaries
-- provider quirks
-- non-obvious implementation choices
+- spec first
+- plan derived from spec
+- execution verified step by step
+- gaps resolved by updating the spec first
+- durable execution discoveries promoted back into the main artifacts
 
-Comments do not narrate obvious code.
-
----
-
-## Completion Principle
-
-A step or phase is not complete merely because code exists.
-
-Completion requires:
-- verified behavior
-- surfaced human tasks
-- honest gap reporting
-- artifact consistency
-- evidence written to the repo
+That is how the artifact stack stays aligned with reality instead of freezing at the moment the first spec was written.

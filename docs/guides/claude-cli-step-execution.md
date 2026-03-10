@@ -2,18 +2,20 @@
 
 This guide covers execution of an existing implementation plan.
 
-Plan construction belongs in `claude-cli-implementation-plan-construction.md`. This guide assumes the plan already exists and that it was derived from the spec.
+Plan construction belongs in `claude-cli-implementation-plan-construction.md`. This guide assumes the plan already exists and that it was derived from the authoritative artifact set.
 
 ## Core idea
 
 Keep the durable rules in the artifact stack. Keep the live Claude CLI prompt minimal.
 
-Use this order of authority:
+Use this order of authority during step execution:
 
 1. `CLAUDE.md`
 2. `docs/architecture/stack-context.md`
-3. `docs/work/<phase>/specification.md`
-4. `docs/work/<phase>/implementation-plan.md`
+3. `docs/architecture/domain.md`
+4. `docs/work/<phase>/specification.md`
+5. `docs/work/<phase>/implementation-plan.md`
+6. `docs/architecture/project-architecture.md` when the step touches integrations, external systems, phasing, or architecture-level ownership boundaries
 
 ## Preconditions
 
@@ -21,6 +23,7 @@ Before step execution begins, you should have:
 
 - a repo agent contract such as `CLAUDE.md`
 - a current stack context document
+- a current domain document
 - a current phase specification
 - a current implementation plan
 - a plan that starts with one `## Human Steps` section and then uses numbered steps only
@@ -44,13 +47,13 @@ Rules during execution:
 
 ## Non-negotiable rules
 
-### 1) The spec is the source of truth
+### 1) The authoritative artifact set is the source of truth
 
-Claude must not introduce new scope, naming, routes, schema, behavior, security policy, config, or comment intent beyond what the spec states.
+Claude must not introduce new scope, naming, routes, schema, behavior, security policy, config, sequencing, integration ownership, runtime assumptions, or comment intent beyond what the authoritative artifacts state.
 
 ### 2) Stop on gaps
 
-If Claude encounters ambiguity, missing decisions, contradictions, missing baseline dependencies, or unstated constraints, it must stop and report the exact gap that must be added to the spec.
+If Claude encounters ambiguity, missing decisions, contradictions, missing baseline dependencies, unstated constraints, or runtime facts that change implementation truth, it must stop and report the exact gap that must be added to the authoritative artifacts.
 
 ### 3) Do not build ahead
 
@@ -85,28 +88,31 @@ When a step changes a file, Claude must also check whether comments already in t
 
 ## Gap resolution during execution
 
-Implementation-time gaps are constraints, contradictions, missing decisions, missing baseline artifacts, or runtime behaviors that surface only when real code meets real conditions.
+Implementation-time gaps are constraints, contradictions, missing decisions, missing baseline artifacts, missing human prerequisites, or runtime behaviors that surface only when real code meets real conditions.
 
 ### What Claude must do when a gap is found
 
 1. **Stop.** Do not guess, work around, or make the decision independently.
 2. **Report the gap** in the step completion report under `Spec Gaps Encountered`.
 3. **Mark the step as `Blocked` or `Partially Complete`.**
+4. **State which authoritative artifact must be updated** before the step can be retried.
 
 ### What the human must do after a gap is reported
 
-1. **Update the specification** with the decision. Tag implementation-time additions `_(implementation gap)_` when appropriate.
-2. **Assess plan impact:**
-   - If the gap changes behavior, scope, constraints, routes, schema, env vars, sequencing, or baseline dependencies → regenerate the implementation plan.
-   - If the gap is informational only → update the spec, keep the existing plan.
+1. **Update the specification first** with the decision when the gap changes scope, behavior, constraints, routes, schema, verification, environment contracts, prerequisites, or sequencing. Tag implementation-time additions `_(implementation gap)_` when appropriate.
+2. **Update the other authoritative artifacts as needed:**
+   - update the **implementation plan** if execution order, dependencies, or verification changes
+   - update **stack-context.md** if runtime/framework truth changes
+   - update **domain.md** if the gap affects Ubiquitous Language, domain model, or bounded-context truth
+   - update **project-architecture.md** if the gap affects integration ownership, external-system responsibilities, or phasing truth
 3. **Re-execute the blocked step** from scratch in a new CLI session.
 
 ### What must not happen
 
 - A gap must not be resolved only in the step completion report.
-- A gap must not be resolved only in the plan.
+- A gap must not be resolved only in the implementation plan.
 - Claude must not resolve the gap by guessing.
-- The human must not ask Claude to continue past the gap without updating the spec.
+- The human must not ask Claude to continue past the gap without updating the authoritative artifacts.
 
 ## Artifact write-back during execution
 
@@ -119,11 +125,15 @@ Examples:
 - an existing helper such as `app/lib/ulid.ts` from an earlier phase
 - a provider quirk that changes callback behavior
 - a local-vs-production behavior that changes verification sequencing
+- a cross-phase dependency that later work must honor
 
-Promotion rule:
+Promotion rules:
 
 - write durable dependencies, prerequisites, contracts, and invariants back into the **specification**
 - write sequencing or step-level dependency effects back into the **implementation plan**
+- write runtime/framework truth back into **stack-context.md**
+- write domain truth back into **domain.md**
+- write integration/phasing/external-system truth back into **project-architecture.md**
 - keep the **step completion report** as the evidence trail
 
 ## Prompt design
@@ -133,26 +143,34 @@ Promotion rule:
 Use the explicit form. Name every document CLI must read, the step number, and the completion report output path.
 
 ```bash
-claude "Read CLAUDE.md, then <stack-context-path>, then <phase-spec-path>, then <phase-plan-path>. Execute Step <N> only. After step execution, write step-completion-<N> to <step-completions-dir>/step-completion-<N>.md. Create the directory if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/architecture/domain.md, then <phase-spec-path>, then <phase-plan-path><optional-project-architecture-clause>. Execute Step <N> only. Do not execute any other numbered step. If you encounter an implementation-time gap, stop, record it in <step-completions-dir>/step-completion-<N>.md, update the specification first before continuing, update the implementation plan if execution changes, update stack-context.md if runtime truth changes, update domain.md if domain truth changes, update project-architecture.md if integration or phasing truth changes, and then stop. After required verification, write <step-completions-dir>/step-completion-<N>.md. Create the directory if it does not already exist. The completion report must state status, what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
 ```
 
-Example:
+When the step does **not** touch integrations, external systems, or phasing, omit the project-architecture clause.
+
+Example without project architecture:
 
 ```bash
-claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/work/v1-auth/specification.md, then docs/work/v1-auth/implementation-plan.md. Execute Step 1 only. After step execution, write step-completion-1 to docs/context/v1-auth/step-completions/step-completion-1.md. Create the directory if it does not already exist. The completion report must state what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/architecture/domain.md, then docs/work/v1-auth/specification.md, then docs/work/v1-auth/implementation-plan.md. Execute Step 1 only. Do not execute any other numbered step. If you encounter an implementation-time gap, stop, record it in docs/context/v1-auth/step-completions/step-completion-1.md, update the specification first before continuing, update the implementation plan if execution changes, update stack-context.md if runtime truth changes, update domain.md if domain truth changes, and then stop. After required verification, write docs/context/v1-auth/step-completions/step-completion-1.md. Create the directory if it does not already exist. The completion report must state status, what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
+```
+
+Example with project architecture:
+
+```bash
+claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/architecture/domain.md, then docs/architecture/project-architecture.md, then docs/work/v1-enrollment/specification.md, then docs/work/v1-enrollment/implementation-plan.md. Execute Step 3 only. Do not execute any other numbered step. If you encounter an implementation-time gap, stop, record it in docs/context/v1-enrollment/step-completions/step-completion-3.md, update the specification first before continuing, update the implementation plan if execution changes, update stack-context.md if runtime truth changes, update domain.md if domain truth changes, update project-architecture.md if integration or phasing truth changes, and then stop. After required verification, write docs/context/v1-enrollment/step-completions/step-completion-3.md. Create the directory if it does not already exist. The completion report must state status, what changed, why it changed, verification performed, and any gaps, blockers, or unresolved items."
 ```
 
 This is the default because it requires no inference. CLI reads exactly what you name, in the order you name it, executes the step you specify, and writes the report to the path you specify.
 
 ### Short prompt
 
-Use this only after you have confirmed that your `CLAUDE.md` is strong enough to resolve the stack context path, the phase spec path, the phase plan path, and the step completion report path without help.
+Use this only after you have confirmed that your `CLAUDE.md` is strong enough to resolve the current phase, the authoritative artifact paths, and the step completion report path without help.
 
 ```bash
-claude "Read CLAUDE.md and execute Step <N> for phase <phase-dir>. Write the completion report to <step-completions-dir>/step-completion-<N>.md."
+claude "Read CLAUDE.md and execute Step <N> for phase <phase-dir>. Write the completion report to <step-completions-dir>/step-completion-<N>.md. Stop on any implementation-time gap and report it."
 ```
 
-If CLI reads the wrong spec, misses the stack context, cannot find the implementation plan, or writes the report to the wrong location, switch back to the default prompt. The short form is a convenience, not a requirement.
+If CLI reads the wrong spec, misses the stack context, misses the domain spec, cannot find the implementation plan, fails to include project architecture when needed, or writes the report to the wrong location, switch back to the default prompt. The short form is a convenience, not a requirement.
 
 ### What the prompt must never do
 
@@ -202,10 +220,10 @@ If the directory does not exist, Claude must create it.
 - Anything the next step must account for:
 
 ## Spec Gaps Encountered
-- None, or the exact gap that must be resolved in the spec
+- None, or the exact gap that must be resolved in the authoritative artifacts
 
 ## Artifact Write-Back Required
-- None, or the durable dependency / invariant / prerequisite that must be promoted into the spec or plan
+- None, or the durable dependency / invariant / prerequisite that must be promoted into the authoritative artifacts
 
 ## Evidence
 - Commands run:
