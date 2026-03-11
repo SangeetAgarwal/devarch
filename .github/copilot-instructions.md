@@ -1,12 +1,13 @@
 # Project Instructions for GitHub Copilot
 
-> **Model Selection**: Use **Claude Opus 4.5** when available for best results with architectural reasoning and context management.
+> **Model Selection**: Use **Claude Opus 4.6** when available for best results with architectural reasoning and context management.
 
 ## Overview
 
 This repository provides practical guidance for AI-assisted software development, with a focus on effective workflows when collaborating with AI tools like Claude Code CLI and GitHub Copilot.
 
 The workflow patterns here address real challenges in AI-assisted development:
+
 - Context limitations and memory loss
 - Session continuity across multiple work periods
 - Decision traceability and knowledge transfer
@@ -107,17 +108,20 @@ Track active work in session files and implementation plans. Always update these
 ### Starting a New Feature
 
 Use the automated script:
+
 ```powershell
 .\scripts\New-Feature.ps1 -FeatureName "feature-name"
 ```
 
 This will:
+
 1. Create feature branch
 2. Create `docs/work/feature-name/` directory
 3. Generate README.md and implementation-plan.md templates
 4. Start a new session automatically
 
 Or manually:
+
 1. Create branch: `git checkout -b feature-name`
 2. Create work directory: `docs/work/feature-name/`
 3. Write `README.md` describing the feature
@@ -127,32 +131,39 @@ Or manually:
 ### Session Workflow
 
 #### Starting a Session
+
 ```powershell
 .\scripts\New-Session.ps1
 ```
+
 - Creates session file from template
 - Shows previous session for context
 - Generates Copilot prompt with architectural context
 
 #### During a Session
+
 - Update session file progressively as you work
 - Mark completed items with ✅
 - Document key decisions immediately
 - Run `Context-Check.ps1` periodically
 
 #### Ending a Session
+
 ```powershell
 .\scripts\End-Session.ps1
 ```
+
 - Prompts for work summary generation
 - Reminds to clear Copilot context
 - Updates session status
 - Commits and pushes changes
 
 #### Resuming a Session
+
 ```powershell
 .\scripts\Resume-Session.ps1
 ```
+
 - Finds latest session and work summaries
 - Generates minimal context-loading prompt
 - Emphasizes clean context start
@@ -160,11 +171,13 @@ Or manually:
 ### Work Summaries
 
 Generate after significant work:
+
 ```powershell
 .\scripts\New-WorkSummary.ps1 -Topic "description"
 ```
 
 This collects:
+
 - Recent commits and diffs
 - Changed files and statistics
 - Generates comprehensive Claude Opus prompt
@@ -172,6 +185,7 @@ This collects:
 Saves to: `docs/work/{branch}/context/YYYY-MM-DD-HHMM-{topic}.md`
 
 **When to create:**
+
 - After completing a feature or major component
 - After multi-hour work sessions
 - Before switching to different work
@@ -180,17 +194,20 @@ Saves to: `docs/work/{branch}/context/YYYY-MM-DD-HHMM-{topic}.md`
 ### Architecture Decision Records (ADRs)
 
 Create before implementing significant changes:
+
 ```powershell
 .\scripts\New-ADR.ps1 -Title "decision-title"
 ```
 
 Auto-numbers (ADR-001, ADR-002, etc.) and generates template with:
+
 - Status, context, decision
 - Consequences (positive, negative, neutral)
 - Alternatives considered
 - Implementation notes
 
 **When to write:**
+
 - Before complex feature implementation
 - When choosing between multiple approaches
 - For decisions affecting multiple components
@@ -202,14 +219,15 @@ Located at: `docs/work/{branch}/implementation-plan.md`
 
 Track progress with phase tables:
 
-| Phase | Task | Status | Notes |
-|-------|------|--------|-------|
-| 1 | Setup | ✅ Done | Completed |
-| 1 | Config | 🚧 In Progress | 80% complete |
-| 2 | Tests | ⏳ Pending | Blocked by config |
-| 3 | Deploy | ❌ Blocked | Waiting for approval |
+| Phase | Task   | Status         | Notes                |
+| ----- | ------ | -------------- | -------------------- |
+| 1     | Setup  | ✅ Done        | Completed            |
+| 1     | Config | 🚧 In Progress | 80% complete         |
+| 2     | Tests  | ⏳ Pending     | Blocked by config    |
+| 3     | Deploy | ❌ Blocked     | Waiting for approval |
 
 Update with:
+
 ```powershell
 .\scripts\Update-ImplementationPlan.ps1
 ```
@@ -219,18 +237,21 @@ Update with:
 ### Effective Prompting
 
 1. **Load context explicitly**
+
    ```
    @workspace Read docs/work/feature-auth/README.md and implementation-plan.md.
    Review the current progress and suggest next steps.
    ```
 
 2. **Reference architecture**
+
    ```
-   Based on ADR-007 (monetary values as integers), implement the price 
+   Based on ADR-007 (monetary values as integers), implement the price
    calculation function following the established pattern.
    ```
 
 3. **Request summaries**
+
    ```
    Generate a work summary for the authentication middleware implementation.
    Include: objectives, what was accomplished, key decisions, challenges,
@@ -275,6 +296,7 @@ Located in `.azuredevops/pipelines/`:
 ### Work Item Linking
 
 Reference work items in commits:
+
 ```
 git commit -m "feat: implement auth middleware #1234"
 ```
@@ -301,6 +323,7 @@ Link ADRs to work items in the ADR's References section.
 ### File Organization
 
 Keep Solution Explorer organized:
+
 - Pin frequently accessed files
 - Use solution folders matching docs structure
 - Close unused files to reduce context
@@ -344,6 +367,7 @@ Unlike Claude Code CLI with automatic hooks, Copilot requires manual context man
 ### Context Size Estimation
 
 Approximate token usage:
+
 - 1 line of code ≈ 10 tokens
 - 1 file (100 lines) ≈ 1,000 tokens
 - 1 chat message ≈ 50-500 tokens
@@ -353,16 +377,16 @@ Target: Keep total context under 30,000 tokens for best results.
 
 ## Comparison with Claude Code CLI
 
-| Aspect | Claude Code CLI | GitHub Copilot + VS 2026 |
-|--------|-----------------|--------------------------|
-| Context Management | Automatic hooks | Manual scripts |
-| Session Start | Auto-creates session file | Run `New-Session.ps1` |
-| Work Summary | `write work summary` command | Run `New-WorkSummary.ps1` |
-| Context Check | `/context` command | Run `Context-Check.ps1` |
-| Model | Claude Sonnet/Opus | Claude Opus 4.5 (select in VS) |
-| Integration | Native CLI | Visual Studio extension |
-| Automation | Built-in hooks | PowerShell scripts |
-| Workflow | Fully automated | Semi-automated |
+| Aspect             | Claude Code CLI              | GitHub Copilot + VS 2026       |
+| ------------------ | ---------------------------- | ------------------------------ |
+| Context Management | Automatic hooks              | Manual scripts                 |
+| Session Start      | Auto-creates session file    | Run `New-Session.ps1`          |
+| Work Summary       | `write work summary` command | Run `New-WorkSummary.ps1`      |
+| Context Check      | `/context` command           | Run `Context-Check.ps1`        |
+| Model              | Claude Sonnet/Opus           | Claude Opus 4.6 (select in VS) |
+| Integration        | Native CLI                   | Visual Studio extension        |
+| Automation         | Built-in hooks               | PowerShell scripts             |
+| Workflow           | Fully automated              | Semi-automated                 |
 
 **Key Difference**: Copilot workflow requires more manual trigger of scripts, but provides same functional equivalence through PowerShell automation.
 
@@ -372,7 +396,7 @@ Target: Keep total context under 30,000 tokens for best results.
 
 1. Clear chat history and reload context
 2. Close unnecessary files
-3. Verify model selection (use Claude Opus 4.5)
+3. Verify model selection (use Claude Opus 4.6)
 4. Restart Visual Studio if issues persist
 
 ### Scripts Not Working

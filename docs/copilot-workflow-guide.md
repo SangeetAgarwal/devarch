@@ -5,6 +5,7 @@ A comprehensive guide to productive collaboration with GitHub Copilot in Visual 
 ## Philosophy
 
 This workflow optimizes for:
+
 - **Context continuity** across sessions (Copilot has context limitations)
 - **Traceability** of decisions and work completed
 - **Efficient handoffs** between sessions
@@ -13,16 +14,16 @@ This workflow optimizes for:
 
 ## Key Differences from Claude Code CLI
 
-| Aspect | Claude Code CLI | GitHub Copilot + VS 2026 |
-|--------|-----------------|--------------------------|
-| **Context Management** | Automatic with `/context` command | Manual estimation via `Context-Check.ps1` |
-| **Session Start** | Automatic hook creates session file | Run `New-Session.ps1` manually |
-| **Work Summary** | `write work summary` command | Run `New-WorkSummary.ps1` manually |
-| **Context Check** | `/context` shows exact remaining | Script estimates based on observable factors |
-| **Model Selection** | Auto-selected by Claude | Manually select Claude Opus 4.5 in VS |
-| **Integration** | Native CLI with hooks | Visual Studio extension + PowerShell scripts |
-| **Automation** | Built-in SessionStart/Stop hooks | PowerShell scripts replace hooks |
-| **Workflow** | Fully automated | Semi-automated (manual triggers) |
+| Aspect                 | Claude Code CLI                     | GitHub Copilot + VS 2026                     |
+| ---------------------- | ----------------------------------- | -------------------------------------------- |
+| **Context Management** | Automatic with `/context` command   | Manual estimation via `Context-Check.ps1`    |
+| **Session Start**      | Automatic hook creates session file | Run `New-Session.ps1` manually               |
+| **Work Summary**       | `write work summary` command        | Run `New-WorkSummary.ps1` manually           |
+| **Context Check**      | `/context` shows exact remaining    | Script estimates based on observable factors |
+| **Model Selection**    | Auto-selected by Claude             | Manually select Claude Opus 4.6 in VS        |
+| **Integration**        | Native CLI with hooks               | Visual Studio extension + PowerShell scripts |
+| **Automation**         | Built-in SessionStart/Stop hooks    | PowerShell scripts replace hooks             |
+| **Workflow**           | Fully automated                     | Semi-automated (manual triggers)             |
 
 ### What This Means
 
@@ -47,6 +48,7 @@ Unlike Claude Code CLI's `/context` command, GitHub Copilot doesn't expose its i
 ### Context Limitations in Copilot
 
 GitHub Copilot loads context from:
+
 - Currently open files in Visual Studio
 - Chat conversation history
 - Workspace metadata (when using `@workspace`)
@@ -87,6 +89,7 @@ When context feels heavy (slow responses, forgetting earlier context, generic su
 ### Estimating Context Usage
 
 Approximate token usage (rough estimates):
+
 - 1 line of code ≈ 10 tokens
 - 1 file (100 lines) ≈ 1,000 tokens
 - 1 chat message exchange ≈ 200-500 tokens
@@ -138,6 +141,7 @@ cd your-existing-repo
 ```
 
 **Key customizations needed:**
+
 - `.github/copilot-instructions.md` - Update with your project's architecture, conventions, and structure
 - `.copilotignore` - Add your project-specific build outputs and large files
 
@@ -178,20 +182,21 @@ project/
 
 ### Purpose of Each Area
 
-| Directory | Purpose | Updated |
-|-----------|---------|---------|
-| `.github/copilot-instructions.md` | Project instructions Copilot reads automatically | As patterns emerge |
-| `docs/context/` | Session-level progress summaries | Every session |
-| `docs/work/{branch}/` | **All artifacts for a branch**: plans, specs, research, evidence | Throughout feature work |
-| `docs/work/{branch}/context/` | Detailed work summaries | After significant work |
-| `docs/architecture/adrs/` | Architecture decisions | When making design choices |
-| `scripts/` | PowerShell automation scripts | As workflow evolves |
+| Directory                         | Purpose                                                          | Updated                    |
+| --------------------------------- | ---------------------------------------------------------------- | -------------------------- |
+| `.github/copilot-instructions.md` | Project instructions Copilot reads automatically                 | As patterns emerge         |
+| `docs/context/`                   | Session-level progress summaries                                 | Every session              |
+| `docs/work/{branch}/`             | **All artifacts for a branch**: plans, specs, research, evidence | Throughout feature work    |
+| `docs/work/{branch}/context/`     | Detailed work summaries                                          | After significant work     |
+| `docs/architecture/adrs/`         | Architecture decisions                                           | When making design choices |
+| `scripts/`                        | PowerShell automation scripts                                    | As workflow evolves        |
 
 ### The Branch = Work Folder Pattern
 
 **Your git branch name should match your work folder.** If you're on branch `feature-auth`, your work lives in `docs/work/feature-auth/`.
 
 This folder contains everything related to that work:
+
 - `README.md` - Overview of the feature/project
 - `implementation-plan.md` - Tracking progress
 - Research notes, specs, design docs
@@ -205,26 +210,27 @@ When the branch merges to main, the work folder stays as historical documentatio
 
 ### Essential Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Shift+/` | Open Copilot Chat |
-| `Ctrl+I` | Inline Copilot suggestions |
-| `Alt+/` | Next Copilot suggestion |
-| `Esc` | Dismiss Copilot suggestion |
-| `Ctrl+K Ctrl+X` | Open snippet picker |
-| `Ctrl+Shift+W` | Close all documents |
-| `Ctrl+Shift+S` | Save all |
-| `Ctrl+`` | Open terminal |
-| `Ctrl+E, T` | Test Explorer |
+| Shortcut        | Action                     |
+| --------------- | -------------------------- |
+| `Ctrl+Shift+/`  | Open Copilot Chat          |
+| `Ctrl+I`        | Inline Copilot suggestions |
+| `Alt+/`         | Next Copilot suggestion    |
+| `Esc`           | Dismiss Copilot suggestion |
+| `Ctrl+K Ctrl+X` | Open snippet picker        |
+| `Ctrl+Shift+W`  | Close all documents        |
+| `Ctrl+Shift+S`  | Save all                   |
+| `Ctrl+``        | Open terminal              |
+| `Ctrl+E, T`     | Test Explorer              |
 
 ### Model Selection
 
-**Always use Claude Opus 4.5 when available** for best results with architectural reasoning and context management.
+**Always use Claude Opus 4.6 when available** for best results with architectural reasoning and context management.
 
 To select model in Visual Studio:
+
 1. Open Copilot Chat (Ctrl+Shift+/)
 2. Click model selector dropdown
-3. Choose "Claude Opus 4.5" (or latest Opus version)
+3. Choose "Claude Opus 4.6" (or latest Opus version)
 
 ### Recommended Extensions
 
@@ -260,25 +266,27 @@ These scripts provide 100% functional equivalence to Claude Code CLI hooks.
 
 ### Overview
 
-| Script | Purpose | Equivalent to |
-|--------|---------|---------------|
-| `New-Session.ps1` | Start work session, load context | SessionStart hook |
-| `End-Session.ps1` | Finalize session, commit changes | Stop hook |
-| `Resume-Session.ps1` | Resume with minimal fresh context | Manual restart workflow |
-| `New-WorkSummary.ps1` | Document completed work | `write work summary` command |
-| `Context-Check.ps1` | Estimate context usage | `/context` command |
-| `New-ADR.ps1` | Create Architecture Decision Record | Manual ADR creation |
-| `New-Feature.ps1` | Create feature branch + structure | Manual setup |
-| `Update-ImplementationPlan.ps1` | Update progress tracking | Manual updates |
+| Script                          | Purpose                             | Equivalent to                |
+| ------------------------------- | ----------------------------------- | ---------------------------- |
+| `New-Session.ps1`               | Start work session, load context    | SessionStart hook            |
+| `End-Session.ps1`               | Finalize session, commit changes    | Stop hook                    |
+| `Resume-Session.ps1`            | Resume with minimal fresh context   | Manual restart workflow      |
+| `New-WorkSummary.ps1`           | Document completed work             | `write work summary` command |
+| `Context-Check.ps1`             | Estimate context usage              | `/context` command           |
+| `New-ADR.ps1`                   | Create Architecture Decision Record | Manual ADR creation          |
+| `New-Feature.ps1`               | Create feature branch + structure   | Manual setup                 |
+| `Update-ImplementationPlan.ps1` | Update progress tracking            | Manual updates               |
 
 ### Script Execution Requirements
 
 **First-time setup** (if needed):
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 **Always run from repository root**:
+
 ```powershell
 cd C:\path\to\your\project
 .\scripts\New-Session.ps1
@@ -316,23 +324,27 @@ cd C:\path\to\your\project
 ### Starting a New Session
 
 **Step 1: Run the script**
+
 ```powershell
 .\scripts\New-Session.ps1
 ```
 
 **What happens:**
+
 1. Creates new session file: `docs/context/session-YYYYMMDD-HHMM-{branch}.md`
 2. Displays previous session for context continuity
 3. Generates Copilot prompt with architectural context
 4. Copies prompt to clipboard automatically
 
 **Step 2: Load context in Copilot**
+
 1. Open Copilot Chat (Ctrl+Shift+/)
-2. Select Claude Opus 4.5 model
+2. Select Claude Opus 4.6 model
 3. Paste prompt (Ctrl+V)
 4. Review Copilot's summary
 
 **Step 3: Start working**
+
 - Update session file as you make progress
 - Keep it current with completed items, decisions, open tasks
 
@@ -342,33 +354,39 @@ cd C:\path\to\your\project
 
 ```markdown
 ## Completed
+
 - ✅ Implemented user authentication middleware
 - ✅ Added JWT token validation
 - ✅ Created unit tests for auth flow
 
 ## Key Decisions
+
 - Using bcrypt for password hashing (industry standard)
 - JWT tokens expire after 24 hours
 - Refresh tokens stored in httpOnly cookies
 
 ## Open Items
+
 - Need to implement password reset flow
 - TODO: Add rate limiting to login endpoint
 - Review: Security audit of auth implementation
 
 ## Files Modified
+
 - `src/middleware/auth.ts` - Authentication middleware
 - `src/utils/jwt.ts` - JWT utilities
 - `tests/auth.test.ts` - Auth tests
 ```
 
 **Context monitoring** - Check regularly:
+
 ```powershell
 # Every 30-60 minutes during active work
 .\scripts\Context-Check.ps1
 ```
 
 **File management**:
+
 - Close files immediately after editing
 - Keep fewer than 10 files open
 - Don't use `@workspace` unless necessary (loads entire workspace)
@@ -376,11 +394,13 @@ cd C:\path\to\your\project
 ### Ending a Session
 
 **Run the script:**
+
 ```powershell
 .\scripts\End-Session.ps1
 ```
 
 **What happens:**
+
 1. Prompts: Should you generate work summary?
 2. Updates session status to "Completed"
 3. Shows git status and uncommitted changes
@@ -388,6 +408,7 @@ cd C:\path\to\your\project
 5. Reminds you to clear Copilot context
 
 **Manual cleanup steps:**
+
 1. **Clear Copilot Chat**: Settings → Clear chat history
 2. **Close All Documents**: Window → Close All Documents (Ctrl+Shift+W)
 3. **Save Solution**: File → Save All (Ctrl+Shift+S)
@@ -395,22 +416,26 @@ cd C:\path\to\your\project
 ### Resuming a Session
 
 **Before running script:**
+
 1. ✅ Clear Copilot chat history
 2. ✅ Close all document windows
 3. ✅ Ready for fresh start
 
 **Run the script:**
+
 ```powershell
 .\scripts\Resume-Session.ps1
 ```
 
 **What happens:**
+
 1. Confirms you've cleared context
 2. Finds latest session and work summaries
 3. Generates **minimal** context-loading prompt
 4. Copies prompt to clipboard
 
 **Load minimal context:**
+
 1. Open Copilot Chat (Ctrl+Shift+/)
 2. Paste prompt (Ctrl+V)
 3. Copilot provides brief summary (max 200 words)
@@ -427,6 +452,7 @@ Work summaries are your **detailed memory** that persists across context resets.
 ### When to Create
 
 Generate a work summary when:
+
 - ✅ You've completed a feature or significant component
 - ✅ You've had a multi-hour work session (2+ hours)
 - ✅ You're switching to a different task or branch
@@ -441,6 +467,7 @@ Generate a work summary when:
 ```
 
 **Example:**
+
 ```powershell
 # After implementing authentication
 .\scripts\New-WorkSummary.ps1 -Topic "auth-implementation"
@@ -453,6 +480,7 @@ Generate a work summary when:
 ```
 
 **What the script does:**
+
 1. Collects git information:
    - Recent commits (last 10 by default)
    - Changed files with status
@@ -463,6 +491,7 @@ Generate a work summary when:
 4. Copies prompt to clipboard
 
 **Work with Copilot:**
+
 1. Paste prompt into Copilot Chat
 2. Copilot generates detailed summary
 3. Copy result into the template file
@@ -480,10 +509,12 @@ Generate a work summary when:
 **Branch**: `feature-auth`
 
 ## Objective
+
 Implement complete user authentication system with JWT tokens,
 including login, logout, token refresh, and protected routes.
 
 ## What Was Accomplished
+
 - Created authentication middleware with JWT validation
 - Implemented login endpoint with bcrypt password hashing
 - Added token refresh mechanism with httpOnly cookies
@@ -492,6 +523,7 @@ including login, logout, token refresh, and protected routes.
 - Added rate limiting to prevent brute force attacks
 
 ## Key Decisions
+
 1. **JWT vs Sessions**: Chose JWT for stateless auth, better for
    distributed systems and mobile apps.
 
@@ -505,6 +537,7 @@ including login, logout, token refresh, and protected routes.
    Access tokens returned in response body for flexibility.
 
 ## Challenges & Solutions
+
 **Challenge**: Race conditions with concurrent token refresh requests.
 **Solution**: Implemented token versioning and atomic updates in database.
 
@@ -512,6 +545,7 @@ including login, logout, token refresh, and protected routes.
 **Solution**: Created test utilities with controllable time mocking.
 
 ## Code Quality
+
 - ✅ Unit tests: 95% coverage (45 tests, all passing)
 - ✅ Integration tests: 12 scenarios tested
 - ✅ Security review: No high/critical issues
@@ -519,6 +553,7 @@ including login, logout, token refresh, and protected routes.
 - ⏳ Performance testing: Pending load tests
 
 ## Next Steps
+
 1. Implement password reset flow (forgot password email)
 2. Add OAuth2 social login (Google, GitHub)
 3. Implement account lockout after failed attempts
@@ -526,6 +561,7 @@ including login, logout, token refresh, and protected routes.
 5. Performance testing under load
 
 ## References
+
 - ADR-007: JWT Authentication Strategy
 - API Docs: `docs/api/authentication.md`
 - Tests: `tests/auth/` directory
@@ -537,6 +573,7 @@ including login, logout, token refresh, and protected routes.
 `YYYY-MM-DD-HHMM-{topic}.md`
 
 Examples:
+
 - `2026-01-17-1430-auth-implementation.md`
 - `2026-01-18-0900-database-migration.md`
 - `2026-01-18-1600-bugfix-login-validation.md`
@@ -557,21 +594,27 @@ Located at `docs/context/.session-template.md`:
 ## Status: In Progress
 
 ## Goals
+
 - (To be filled as work progresses)
 
 ## Completed
+
 - (None yet)
 
 ## Key Decisions
+
 - (None yet)
 
 ## Open Items
+
 - (None yet)
 
 ## Files Modified
+
 - (None yet)
 
 ## Notes
+
 - Session started: {{TIMESTAMP}}
 ```
 
@@ -580,6 +623,7 @@ Located at `docs/context/.session-template.md`:
 `session-YYYYMMDD-HHMM-{branch}.md`
 
 Examples:
+
 - `session-20260117-0930-feature-auth.md`
 - `session-20260117-1400-feature-auth.md`
 - `session-20260118-0900-api-refactor.md`
@@ -587,6 +631,7 @@ Examples:
 ### When to Update
 
 Update session file:
+
 - ✅ After completing chunks of work (every 30-60 min)
 - ✅ After making key decisions
 - ✅ After test runs or builds
@@ -595,52 +640,63 @@ Update session file:
 ### Progressive Updates
 
 **Start of session:**
+
 ```markdown
 ## Status: In Progress
 
 ## Goals
+
 - Implement JWT authentication middleware
 - Add unit tests for auth flow
 - Document API endpoints
 
 ## Completed
+
 - (None yet)
 ```
 
 **Mid-session:**
+
 ```markdown
 ## Status: In Progress
 
 ## Goals
+
 - Implement JWT authentication middleware
 - Add unit tests for auth flow
 - Document API endpoints
 
 ## Completed
+
 - ✅ Created auth middleware skeleton
 - ✅ Implemented JWT token generation
 - ✅ Added token validation logic
 
 ## Key Decisions
+
 - Using jsonwebtoken library (most popular, well-maintained)
 - Token expiration: 24 hours (can adjust later)
 
 ## Open Items
+
 - Need to add token refresh mechanism
 - TODO: Write unit tests
 - Consider: Rate limiting for login endpoint
 ```
 
 **End of session:**
+
 ```markdown
 ## Status: Completed (2026-01-17 14:30)
 
 ## Goals
+
 - Implement JWT authentication middleware
 - Add unit tests for auth flow
 - Document API endpoints
 
 ## Completed
+
 - ✅ Created auth middleware with JWT validation
 - ✅ Implemented token generation and refresh
 - ✅ Added comprehensive unit tests (95% coverage)
@@ -648,17 +704,20 @@ Update session file:
 - ✅ Added rate limiting to login
 
 ## Key Decisions
+
 - Using jsonwebtoken library (most popular, well-maintained)
 - Token expiration: 24 hours access, 7 days refresh
 - Refresh tokens in httpOnly cookies for security
 - bcrypt cost factor: 12 (good security/performance balance)
 
 ## Open Items
+
 - Future: Implement password reset flow
 - Future: Add OAuth2 social login
 - Review: Security audit needed
 
 ## Files Modified
+
 - `src/middleware/auth.ts` - Authentication middleware
 - `src/services/auth.service.ts` - Auth business logic
 - `src/utils/jwt.ts` - JWT utilities
@@ -687,59 +746,65 @@ Located at: `docs/work/{branch}/implementation-plan.md`
 ## Phase Breakdown
 
 ### Phase 1: Core Authentication ✅
-| Task | Status | Notes |
-|------|--------|-------|
-| JWT utilities | ✅ Done | Using jsonwebtoken library |
-| Auth middleware | ✅ Done | Token validation working |
-| Login endpoint | ✅ Done | Bcrypt password hashing |
-| Logout endpoint | ✅ Done | Token invalidation |
-| Unit tests | ✅ Done | 95% coverage |
+
+| Task            | Status  | Notes                      |
+| --------------- | ------- | -------------------------- |
+| JWT utilities   | ✅ Done | Using jsonwebtoken library |
+| Auth middleware | ✅ Done | Token validation working   |
+| Login endpoint  | ✅ Done | Bcrypt password hashing    |
+| Logout endpoint | ✅ Done | Token invalidation         |
+| Unit tests      | ✅ Done | 95% coverage               |
 
 ### Phase 2: Token Management 🚧
-| Task | Status | Notes |
-|------|--------|-------|
-| Token refresh | ✅ Done | Implemented refresh flow |
-| Token revocation | 🚧 In Progress | 80% complete |
-| Token storage | ✅ Done | httpOnly cookies |
-| Expiration handling | ⏳ Pending | Waiting on refresh completion |
+
+| Task                | Status         | Notes                         |
+| ------------------- | -------------- | ----------------------------- |
+| Token refresh       | ✅ Done        | Implemented refresh flow      |
+| Token revocation    | 🚧 In Progress | 80% complete                  |
+| Token storage       | ✅ Done        | httpOnly cookies              |
+| Expiration handling | ⏳ Pending     | Waiting on refresh completion |
 
 ### Phase 3: Security ⏳
-| Task | Status | Notes |
-|------|--------|-------|
-| Rate limiting | ⏳ Pending | Dependencies in Phase 2 |
-| Account lockout | ⏳ Pending | After rate limiting |
-| Audit logging | ⏳ Pending | |
+
+| Task            | Status     | Notes                       |
+| --------------- | ---------- | --------------------------- |
+| Rate limiting   | ⏳ Pending | Dependencies in Phase 2     |
+| Account lockout | ⏳ Pending | After rate limiting         |
+| Audit logging   | ⏳ Pending |                             |
 | Security review | ⏳ Pending | Schedule with security team |
 
 ### Phase 4: Enhanced Features ⏳
-| Task | Status | Notes |
-|------|--------|-------|
-| Password reset | ⏳ Pending | Email integration needed |
-| OAuth2 Google | ⏳ Pending | |
-| OAuth2 GitHub | ⏳ Pending | |
-| 2FA support | ❌ Blocked | Waiting for product decision |
+
+| Task           | Status     | Notes                        |
+| -------------- | ---------- | ---------------------------- |
+| Password reset | ⏳ Pending | Email integration needed     |
+| OAuth2 Google  | ⏳ Pending |                              |
+| OAuth2 GitHub  | ⏳ Pending |                              |
+| 2FA support    | ❌ Blocked | Waiting for product decision |
 
 ---
 
 ## Summary
 
-| Category | Done | Total | % |
-|----------|------|-------|---|
-| API Endpoints | 4 | 8 | 50% |
-| Unit Tests | 45 | 60 | 75% |
-| Integration Tests | 8 | 15 | 53% |
-| Documentation | 3 | 5 | 60% |
-| **Overall** | **60** | **88** | **68%** |
+| Category          | Done   | Total  | %       |
+| ----------------- | ------ | ------ | ------- |
+| API Endpoints     | 4      | 8      | 50%     |
+| Unit Tests        | 45     | 60     | 75%     |
+| Integration Tests | 8      | 15     | 53%     |
+| Documentation     | 3      | 5      | 60%     |
+| **Overall**       | **60** | **88** | **68%** |
 
 ---
 
 ## Recently Completed
+
 - 2026-01-17: Implemented JWT token generation and validation ✅
 - 2026-01-17: Added bcrypt password hashing ✅
 - 2026-01-17: Created comprehensive unit test suite ✅
 - 2026-01-17: Implemented token refresh mechanism ✅
 
 ## Priority Next Steps
+
 1. ⏰ Complete token revocation implementation
 2. ⏰ Implement expiration handling
 3. ⏰ Add rate limiting to login endpoint
@@ -747,12 +812,14 @@ Located at: `docs/work/{branch}/implementation-plan.md`
 5. Schedule security review
 
 ## Blockers
+
 - ❌ 2FA feature blocked pending product decision on requirement
 - ⏳ Email integration for password reset (waiting on email service setup)
 
 ---
 
 ## Notes
+
 - All Phase 1 tasks completed ahead of schedule
 - Security review scheduled for 2026-01-20
 - Performance testing shows <50ms response time for auth endpoints
@@ -760,12 +827,12 @@ Located at: `docs/work/{branch}/implementation-plan.md`
 
 ### Task Status Markers
 
-| Marker | Meaning |
-|--------|---------|
-| ✅ Done | Task completed and tested |
-| 🚧 In Progress | Currently working on this |
-| ⏳ Pending | Not started yet |
-| ❌ Blocked | Cannot proceed due to dependency |
+| Marker         | Meaning                          |
+| -------------- | -------------------------------- |
+| ✅ Done        | Task completed and tested        |
+| 🚧 In Progress | Currently working on this        |
+| ⏳ Pending     | Not started yet                  |
+| ❌ Blocked     | Cannot proceed due to dependency |
 
 ### Updating Progress
 
@@ -773,11 +840,13 @@ Located at: `docs/work/{branch}/implementation-plan.md`
 Edit the file and update status markers, notes, and summary tables.
 
 **Script approach:**
+
 ```powershell
 .\scripts\Update-ImplementationPlan.ps1
 ```
 
 This script:
+
 1. Parses the current implementation plan
 2. Counts tasks by status
 3. Recalculates progress percentages
@@ -792,6 +861,7 @@ Document significant design decisions before implementation.
 ### When to Write an ADR
 
 Create an ADR when:
+
 - ✅ Making technology or framework choices
 - ✅ Choosing between multiple architectural approaches
 - ✅ Making decisions that are hard to reverse (database schemas, APIs)
@@ -806,11 +876,13 @@ Create an ADR when:
 ```
 
 **Example:**
+
 ```powershell
 .\scripts\New-ADR.ps1 -Title "Use JWT for authentication"
 ```
 
 **What happens:**
+
 1. Auto-numbers ADR sequentially (ADR-001, ADR-002, ...)
 2. Creates file: `docs/architecture/adrs/adr-NNN-{title}.md`
 3. Generates comprehensive template
@@ -818,6 +890,7 @@ Create an ADR when:
 5. Copies prompt to clipboard
 
 **Work with Copilot:**
+
 1. Paste prompt into Copilot Chat
 2. Discuss context, alternatives, trade-offs
 3. Copilot helps complete ADR sections
@@ -830,25 +903,31 @@ Create an ADR when:
 # ADR-007: Use JWT for Authentication
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-01-17
 
 ## Context
+
 We need to implement authentication for our REST API. The system needs to:
+
 - Support web and mobile clients
 - Scale horizontally across multiple servers
 - Provide secure, stateless authentication
 - Integrate with existing identity providers in the future
 
 Key considerations:
+
 - Session-based auth requires sticky sessions or shared session storage
 - Token-based auth allows stateless, distributed architecture
 - Need to support logout and token revocation
 - Security is paramount (protecting user data)
 
 ## Decision
+
 We will use JWT (JSON Web Tokens) for authentication with the following approach:
 
 1. **Access Tokens**: Short-lived (24 hours), stored in memory by client
@@ -858,6 +937,7 @@ We will use JWT (JSON Web Tokens) for authentication with the following approach
 5. **Library**: jsonwebtoken (npm) - most popular, well-maintained
 
 Authentication flow:
+
 1. User logs in with credentials
 2. Server validates credentials, issues access + refresh tokens
 3. Client includes access token in Authorization header
@@ -867,6 +947,7 @@ Authentication flow:
 ## Consequences
 
 ### Positive
+
 - ✅ **Stateless**: No server-side session storage required
 - ✅ **Scalable**: Works seamlessly across multiple server instances
 - ✅ **Mobile-friendly**: Easy to use in mobile apps
@@ -875,12 +956,14 @@ Authentication flow:
 - ✅ **Flexibility**: Can include custom claims (roles, permissions)
 
 ### Negative
+
 - ❌ **Cannot revoke access tokens**: Must wait for expiration (max 24 hours)
 - ❌ **Token size**: JWTs are larger than session IDs (~200 bytes vs 20 bytes)
 - ❌ **Secret management**: Must securely manage signing keys
 - ❌ **Complexity**: More complex than session-based auth
 
 ### Neutral
+
 - 🟡 **Refresh tokens**: Need database storage and revocation logic
 - 🟡 **Expiration handling**: Clients must handle token refresh
 - 🟡 **Clock synchronization**: Servers must have synchronized clocks for exp validation
@@ -888,14 +971,17 @@ Authentication flow:
 ## Alternatives Considered
 
 ### 1. Session-Based Authentication
+
 **Approach**: Traditional session cookies with server-side storage.
 
 **Pros**:
+
 - Simple to implement
 - Easy to revoke sessions immediately
 - Smaller cookie size
 
 **Cons**:
+
 - Requires sticky sessions or shared session storage (Redis)
 - Doesn't scale horizontally as easily
 - Harder to use with mobile apps
@@ -903,14 +989,17 @@ Authentication flow:
 **Why not chosen**: Scaling and mobile support are critical requirements.
 
 ### 2. OAuth2 with External Provider
+
 **Approach**: Delegate authentication to Google, GitHub, etc.
 
 **Pros**:
+
 - No password management
 - Leverages existing user accounts
 - Reduced security risk
 
 **Cons**:
+
 - Dependency on third-party services
 - Still need internal user management
 - Requires OAuth2 flow implementation
@@ -918,13 +1007,16 @@ Authentication flow:
 **Why not chosen**: Can add later as supplement, but need internal auth first.
 
 ### 3. Opaque Tokens (Random strings)
+
 **Approach**: Generate random tokens, store in database with user mapping.
 
 **Pros**:
+
 - Can revoke immediately
 - Simpler than JWT
 
 **Cons**:
+
 - Requires database lookup on every request
 - Doesn't scale as well
 - No built-in expiration
@@ -934,32 +1026,38 @@ Authentication flow:
 ## Implementation Notes
 
 ### Security Measures
+
 1. **Refresh token rotation**: Issue new refresh token on each use
 2. **Token fingerprinting**: Bind tokens to specific devices/IPs
 3. **Rate limiting**: Prevent brute force attacks on login
 4. **HTTPS only**: Never send tokens over unencrypted connections
 
 ### Testing Strategy
+
 1. Unit tests for token generation/validation
 2. Integration tests for auth flows
 3. Security tests for common vulnerabilities (XSS, CSRF)
 4. Load tests for performance under high concurrency
 
 ### Migration Path
+
 No existing auth system, so no migration needed. Clean slate.
 
 ### Future Enhancements
+
 1. Add OAuth2 social login (Phase 4)
 2. Implement 2FA (if required by product)
 3. Consider short-lived tokens with automatic silent refresh
 
 ## References
+
 - RFC 7519 (JWT specification): https://tools.ietf.org/html/rfc7519
 - OWASP JWT Cheat Sheet: https://cheatsheetsecurity.com/jwt
 - Implementation: `src/middleware/auth.ts`, `src/services/auth.service.ts`
 - Tests: `tests/auth/`
 
 ## Follow-up Actions
+
 - [ ] Implement JWT utilities (`src/utils/jwt.ts`)
 - [ ] Create auth middleware (`src/middleware/auth.ts`)
 - [ ] Add unit tests
@@ -975,12 +1073,12 @@ The `New-ADR.ps1` script automatically finds the next number.
 
 ### ADR Status Values
 
-| Status | Meaning |
-|--------|---------|
-| Proposed | Under discussion, not yet decided |
-| Accepted | Decision made, being implemented |
-| Deprecated | No longer recommended, but not replaced |
-| Superseded by ADR-XXX | Replaced by a newer decision |
+| Status                | Meaning                                 |
+| --------------------- | --------------------------------------- |
+| Proposed              | Under discussion, not yet decided       |
+| Accepted              | Decision made, being implemented        |
+| Deprecated            | No longer recommended, but not replaced |
+| Superseded by ADR-XXX | Replaced by a newer decision            |
 
 ---
 
@@ -989,8 +1087,9 @@ The `New-ADR.ps1` script automatically finds the next number.
 ### Model Selection
 
 **Always specify model** for best results:
+
 ```
-**Model Selection**: Use Claude Opus 4.5 for best results.
+**Model Selection**: Use Claude Opus 4.6 for best results.
 ```
 
 Include this in prompts when architectural reasoning or complex context is needed.
@@ -1101,11 +1200,13 @@ main                    # Stable, production-ready
 ### Creating a New Feature
 
 **Automated approach:**
+
 ```powershell
 .\scripts\New-Feature.ps1 -FeatureName "user-auth"
 ```
 
 **What happens:**
+
 1. Creates branch: `feature-user-auth`
 2. Creates work directory: `docs/work/feature-user-auth/`
 3. Generates `README.md` and `implementation-plan.md` templates
@@ -1114,6 +1215,7 @@ main                    # Stable, production-ready
 6. Generates context-loading prompt
 
 **Manual approach:**
+
 ```bash
 # Create branch
 git checkout -b feature-user-auth
@@ -1170,49 +1272,51 @@ This workflow integrates with Azure DevOps for CI/CD and work item tracking.
 Located in `.azuredevops/pipelines/`:
 
 #### `session-tracking.yml`
+
 Auto-generates session documentation on push.
 
 ```yaml
 trigger:
   branches:
     include:
-      - '*'
+      - "*"
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "windows-latest"
 
 steps:
-- task: PowerShell@2
-  displayName: 'Check for session updates'
-  inputs:
-    targetType: 'inline'
-    script: |
-      if (Test-Path "docs/context/session-*.md") {
-        Write-Host "Session files found - documentation updated"
-      }
+  - task: PowerShell@2
+    displayName: "Check for session updates"
+    inputs:
+      targetType: "inline"
+      script: |
+        if (Test-Path "docs/context/session-*.md") {
+          Write-Host "Session files found - documentation updated"
+        }
 ```
 
 #### `work-summary.yml`
+
 Manual trigger for work summary assistance.
 
 ```yaml
-trigger: none  # Manual only
+trigger: none # Manual only
 
 parameters:
-- name: topic
-  displayName: 'Work Summary Topic'
-  type: string
-  default: 'progress-update'
+  - name: topic
+    displayName: "Work Summary Topic"
+    type: string
+    default: "progress-update"
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "windows-latest"
 
 steps:
-- task: PowerShell@2
-  displayName: 'Generate work summary template'
-  inputs:
-    filePath: 'scripts/New-WorkSummary.ps1'
-    arguments: '-Topic "${{ parameters.topic }}"'
+  - task: PowerShell@2
+    displayName: "Generate work summary template"
+    inputs:
+      filePath: "scripts/New-WorkSummary.ps1"
+      arguments: '-Topic "${{ parameters.topic }}"'
 ```
 
 ### Work Item Linking
@@ -1234,6 +1338,7 @@ Link work items in ADRs:
 
 ```markdown
 ## References
+
 - Work Item #1234: Implement user authentication
 - Work Item #1235: Security requirements for auth
 ```
@@ -1254,6 +1359,7 @@ Update work items as you progress:
 ### Test Explorer
 
 Access Test Explorer:
+
 - View → Test Explorer (Ctrl+E, T)
 - Shows all tests in solution
 - Run individual tests or groups
@@ -1262,15 +1368,18 @@ Access Test Explorer:
 ### Running Tests
 
 **All tests:**
+
 ```
 Test → Run All Tests
 ```
 
 **Specific tests:**
+
 - Right-click test in Test Explorer → Run
 - Right-click test in code → Run Test(s)
 
 **From terminal:**
+
 ```powershell
 # .NET projects
 dotnet test
@@ -1300,6 +1409,7 @@ npm test -- --watch
 ### 1. Copilot Not Responding Correctly
 
 **Symptoms:**
+
 - Generic or incorrect suggestions
 - Forgetting earlier context
 - Irrelevant responses
@@ -1307,6 +1417,7 @@ npm test -- --watch
 **Solutions:**
 
 **A. Clear context and reload:**
+
 ```powershell
 # 1. Generate work summary first
 .\scripts\New-WorkSummary.ps1 -Topic "checkpoint"
@@ -1323,11 +1434,13 @@ npm test -- --watch
 ```
 
 **B. Verify model selection:**
+
 - Open Copilot Chat
 - Check model dropdown
-- Select Claude Opus 4.5 if available
+- Select Claude Opus 4.6 if available
 
 **C. Restart Visual Studio:**
+
 - Save all work
 - Close Visual Studio completely
 - Reopen and resume session
@@ -1337,6 +1450,7 @@ npm test -- --watch
 **Error:** "cannot be loaded because running scripts is disabled"
 
 **Solution:**
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
@@ -1344,6 +1458,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **Error:** "git is not recognized"
 
 **Solution:**
+
 - Install Git: https://git-scm.com/download/win
 - Ensure Git is in PATH environment variable
 - Restart PowerShell/Visual Studio
@@ -1352,6 +1467,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Solution:**
 Run scripts from repository root:
+
 ```powershell
 cd C:\path\to\your\project
 .\scripts\New-Session.ps1
@@ -1360,11 +1476,13 @@ cd C:\path\to\your\project
 ### 3. Context Feels Overloaded
 
 **Signs:**
+
 - Copilot responses slow down
 - Suggestions become generic
 - Forgetting project patterns
 
 **Immediate action:**
+
 ```powershell
 # 1. Check context size
 .\scripts\Context-Check.ps1
@@ -1383,6 +1501,7 @@ cd C:\path\to\your\project
 ```
 
 **Prevention:**
+
 - Run `Context-Check.ps1` every 30-60 minutes
 - Keep fewer than 10 files open
 - Close files immediately after use
@@ -1394,6 +1513,7 @@ cd C:\path\to\your\project
 
 **Solution:**
 Scripts display full prompt in console. Copy manually:
+
 - Select prompt text in PowerShell window
 - Right-click → Copy or Ctrl+C
 - Paste into Copilot Chat
@@ -1405,17 +1525,21 @@ Scripts display full prompt in console. Copy manually:
 **Solution:**
 
 **A. Create new session:**
+
 ```powershell
 .\scripts\New-Session.ps1
 ```
 
 **B. Check branch name:**
+
 ```powershell
 git branch --show-current
 ```
+
 Session files are branch-specific.
 
 **C. Look for recent sessions:**
+
 ```powershell
 ls docs/context/session-*.md | Sort-Object LastWriteTime -Descending
 ```
@@ -1427,11 +1551,13 @@ ls docs/context/session-*.md | Sort-Object LastWriteTime -Descending
 **Solution:**
 
 **A. Create with script:**
+
 ```powershell
 .\scripts\New-Feature.ps1 -FeatureName "your-branch-name" -NoBranch
 ```
 
 **B. Create manually:**
+
 ```powershell
 $branch = git rev-parse --abbrev-ref HEAD
 mkdir -p "docs/work/$branch/context"
@@ -1447,6 +1573,7 @@ mkdir -p "docs/work/$branch/context"
 **Common causes & solutions:**
 
 **A. Merge conflicts:**
+
 ```bash
 git status  # Check for conflicts
 # Resolve conflicts manually
@@ -1455,15 +1582,18 @@ git commit -m "resolve conflicts"
 ```
 
 **B. No changes to commit:**
+
 - Normal if no files changed
 - Script will skip commit
 
 **C. Remote branch doesn't exist:**
+
 ```bash
 git push --set-upstream origin your-branch-name
 ```
 
 **D. Authentication failed:**
+
 - Set up Git credentials
 - Use SSH keys or credential manager
 
@@ -1514,7 +1644,7 @@ git push --set-upstream origin your-branch-name
 
 ### Copilot Interaction
 
-1. **Select best model** - Use Claude Opus 4.5 for complex work
+1. **Select best model** - Use Claude Opus 4.6 for complex work
 2. **Load context explicitly** - Don't assume Copilot knows what to read
 3. **Be specific in requests** - "Fix the auth bug" vs "Fix the JWT expiration validation in auth middleware"
 4. **Reference established patterns** - "Following ADR-007's token structure"
@@ -1548,24 +1678,24 @@ git push --set-upstream origin your-branch-name
 
 ## Comparison Table: Claude Code CLI vs GitHub Copilot
 
-| Feature | Claude Code CLI | GitHub Copilot + VS 2026 | Notes |
-|---------|-----------------|--------------------------|-------|
-| **Context Visibility** | `/context` shows exact % | Estimated via `Context-Check.ps1` | Manual estimation less precise |
-| **Session Start** | Automatic SessionStart hook | `New-Session.ps1` manual | Same result, manual trigger |
-| **Session End** | Automatic Stop hook | `End-Session.ps1` manual | Same result, manual trigger |
-| **Work Summary** | `write work summary` command | `New-WorkSummary.ps1` manual | Same output, manual trigger |
-| **Context Reset** | `/compact` command | Clear chat + close docs | Copilot requires full clear |
-| **Model Selection** | Automatic (Sonnet/Opus) | Manual selection in UI | Must select Claude Opus 4.5 |
-| **File Loading** | Automatic with hooks | Explicit `@workspace` or file refs | More control in Copilot |
-| **Automation Level** | Fully automated | Semi-automated (scripts) | PowerShell replaces hooks |
-| **Integration** | Native CLI | VS extension | Different UX, same workflow |
-| **Context Limit** | Displayed explicitly | Estimated (not exposed) | Requires active monitoring |
-| **Session Continuity** | Hooks ensure consistency | Manual discipline needed | Both achieve same goal |
-| **Work Summaries** | AI-generated on command | AI-generated with script | Same AI capability |
-| **ADR Creation** | Manual | `New-ADR.ps1` with template | Script provides structure |
-| **Implementation Plans** | Manual | `Update-ImplementationPlan.ps1` helper | Script automates calculations |
-| **Git Integration** | CLI-friendly | PowerShell + VS Git tools | Both work well |
-| **Platform** | Cross-platform CLI | Windows Visual Studio | Platform difference |
+| Feature                  | Claude Code CLI              | GitHub Copilot + VS 2026               | Notes                          |
+| ------------------------ | ---------------------------- | -------------------------------------- | ------------------------------ |
+| **Context Visibility**   | `/context` shows exact %     | Estimated via `Context-Check.ps1`      | Manual estimation less precise |
+| **Session Start**        | Automatic SessionStart hook  | `New-Session.ps1` manual               | Same result, manual trigger    |
+| **Session End**          | Automatic Stop hook          | `End-Session.ps1` manual               | Same result, manual trigger    |
+| **Work Summary**         | `write work summary` command | `New-WorkSummary.ps1` manual           | Same output, manual trigger    |
+| **Context Reset**        | `/compact` command           | Clear chat + close docs                | Copilot requires full clear    |
+| **Model Selection**      | Automatic (Sonnet/Opus)      | Manual selection in UI                 | Must select Claude Opus 4.6    |
+| **File Loading**         | Automatic with hooks         | Explicit `@workspace` or file refs     | More control in Copilot        |
+| **Automation Level**     | Fully automated              | Semi-automated (scripts)               | PowerShell replaces hooks      |
+| **Integration**          | Native CLI                   | VS extension                           | Different UX, same workflow    |
+| **Context Limit**        | Displayed explicitly         | Estimated (not exposed)                | Requires active monitoring     |
+| **Session Continuity**   | Hooks ensure consistency     | Manual discipline needed               | Both achieve same goal         |
+| **Work Summaries**       | AI-generated on command      | AI-generated with script               | Same AI capability             |
+| **ADR Creation**         | Manual                       | `New-ADR.ps1` with template            | Script provides structure      |
+| **Implementation Plans** | Manual                       | `Update-ImplementationPlan.ps1` helper | Script automates calculations  |
+| **Git Integration**      | CLI-friendly                 | PowerShell + VS Git tools              | Both work well                 |
+| **Platform**             | Cross-platform CLI           | Windows Visual Studio                  | Platform difference            |
 
 ### Bottom Line
 
@@ -1610,13 +1740,15 @@ Ctrl+E, T       Test Explorer
 ### Workflow Checklist
 
 **Starting work:**
+
 - [ ] `.\scripts\New-Session.ps1`
 - [ ] Open Copilot Chat (Ctrl+Shift+/)
-- [ ] Select Claude Opus 4.5 model
+- [ ] Select Claude Opus 4.6 model
 - [ ] Paste generated prompt
 - [ ] Review summary and start working
 
 **During work:**
+
 - [ ] Update session file progressively
 - [ ] Close files after editing
 - [ ] Keep < 10 files open
@@ -1624,6 +1756,7 @@ Ctrl+E, T       Test Explorer
 - [ ] Commit regularly
 
 **Ending work:**
+
 - [ ] `.\scripts\New-WorkSummary.ps1 -Topic "..."`
 - [ ] `.\scripts\End-Session.ps1`
 - [ ] Clear Copilot chat history
@@ -1631,6 +1764,7 @@ Ctrl+E, T       Test Explorer
 - [ ] Push changes
 
 **Context reset (if needed):**
+
 - [ ] `.\scripts\New-WorkSummary.ps1 -Topic "checkpoint"`
 - [ ] Commit all changes
 - [ ] Clear Copilot chat
@@ -1672,7 +1806,7 @@ This workflow provides **100% functional equivalence** to Claude Code CLI, adapt
 2. **Monitoring** - Check context size regularly
 3. **Documentation** - Write summaries liberally
 4. **Cleanup** - Clear context when it gets heavy
-5. **Model selection** - Use Claude Opus 4.5 for best results
+5. **Model selection** - Use Claude Opus 4.6 for best results
 
 ---
 

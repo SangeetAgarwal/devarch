@@ -204,7 +204,7 @@ Please create a detailed work summary following this structure:
 5. Include specific file paths and line numbers where relevant
 6. Cross-reference related ADRs, session files, or implementation plans
 
-**Model Selection**: Use Claude Opus 4.5 for best quality.
+**Model Selection**: Use Claude Opus 4.6 for best quality.
 
 After generating the summary, I'll save it to: ``$summaryFile``
 "@

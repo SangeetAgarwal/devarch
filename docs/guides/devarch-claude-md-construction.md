@@ -68,6 +68,9 @@ At minimum, include:
 
 Operational rules that enforce consistency.
 
+- **Code must match the spec exactly. Deviations are bugs, not improvements.**  
+  When reviewing output, do not rationalize differences between code and spec. If code differs from the spec, fix the code or stop and record a gap. Never present a spec deviation as an optional preference.
+
 ### 9. Code Comment Policy
 
 Durable comment rules across phases.

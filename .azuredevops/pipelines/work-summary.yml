@@ -200,7 +200,7 @@ Please help me:
    - Documents any workarounds or technical debt
    - Includes concrete next steps
 
-**Model Selection**: Use Claude Opus 4.5 for best quality.
+**Model Selection**: Use Claude Opus 4.6 for best quality.
 
 Let's start by reviewing the commits and discussing what was accomplished.
 "@

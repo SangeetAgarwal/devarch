@@ -207,7 +207,7 @@ Based on this context, please:
 - Identify the next priority tasks
 - Highlight any blockers or open questions
 
-**Model Selection**: Use Claude Opus 4.5 for best results.
+**Model Selection**: Use Claude Opus 4.6 for best results.
 "@
 
     Write-Host $prompt

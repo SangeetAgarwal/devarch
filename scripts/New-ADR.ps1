@@ -248,7 +248,7 @@ Please help me complete this ADR by:
    - Captures enough context for future readers
    - Lists concrete pros/cons for alternatives
 
-**Model Selection**: Use Claude Opus 4.5 for best quality.
+**Model Selection**: Use Claude Opus 4.6 for best quality.
 
 Let's start by discussing the context. What problem or requirement is motivating this decision?
 "@

@@ -199,7 +199,7 @@ Based on ONLY the files listed above, please provide a **concise summary** (max 
 - Don't load any other files unless I explicitly ask
 - This is a fresh context - we're starting lean
 
-**Model Selection**: Use Claude Opus 4.5 for best results.
+**Model Selection**: Use Claude Opus 4.6 for best results.
 
 ---
 
