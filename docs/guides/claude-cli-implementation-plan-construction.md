@@ -133,6 +133,24 @@ The spec should require a plan shape like this:
 
 The exact number of numbered steps may vary, but the plan must preserve the order required by the spec.
 
+## Verification steps as planned steps
+
+A verification step is a legitimate numbered step when the phase requires a dedicated closure pass against done criteria.
+
+Use a numbered verification step when the spec requires:
+- explicit done-criteria verification
+- browser or provider-level manual verification
+- combined build/test/manual proof across several earlier steps
+- a phase or sub-phase closure checkpoint
+
+Rules:
+
+- Verification steps are numbered steps in the implementation plan.
+- They are not ad hoc follow-up notes.
+- They should appear where the spec's sequencing requires them.
+- They should identify the criteria to verify and any manual verification prerequisites from Human Steps.
+- If manual verification may remain after the CLI session ends, the plan should expect the verification step to produce an explicit human handoff checklist in its completion report.
+
 ## Code comment policy in DevArch
 
 Comments are not decoration. They are implementation-side traceability.
@@ -209,11 +227,12 @@ When Claude CLI generates the plan, it must follow these rules:
 5. Keep build-verifiable work ahead of runtime-dependent verification.
 6. Put `## Human Steps` once at the beginning.
 7. Keep independently verifiable provider flows as separate numbered steps when the spec says they are independently verifiable.
-8. End with `## Final Done Criteria Verification`.
+8. End with `## Final Done Criteria Verification` or another explicit numbered verification step when the spec calls for it.
 9. If the spec is not sufficient, stop and tighten the spec first.
 10. Treat comment work as part of the implementation, not as a cosmetic afterthought.
 11. Surface existing baseline dependencies explicitly in the affected steps.
 12. If a durable cross-phase dependency is proven by step-completion evidence, promote it into the spec before finalizing the plan.
+13. When a numbered verification step requires manual verification that Claude CLI may not be able to complete itself, make that expectation explicit in the step's verification criteria and completion evidence.
 
 ## Plan regeneration after implementation-time gaps
 
@@ -240,13 +259,30 @@ Check:
 4. Does every code-changing step declare `Required Comment Updates`?
 5. Does every step include a `Goal` subsection?
 6. Do verification criteria use the explicit labels from this guide?
-7. Do the steps follow the sequencing constraints in the spec?
-8. Does the plan avoid invented scope?
-9. Does the final section map the done criteria to concrete checks?
-10. Do the comment obligations in the plan match the phase-specific comment requirements in the spec?
-11. Are existing baseline dependencies surfaced where the phase relies on them?
+7. Does the plan include numbered verification steps where the spec requires them?
+8. If a verification step has manual requirements, does it make them explicit?
+9. Do the steps follow the sequencing constraints in the spec?
+10. Does the plan avoid invented scope?
+11. Does the final section map the done criteria to concrete checks?
+12. Do the comment obligations in the plan match the phase-specific comment requirements in the spec?
+13. Are existing baseline dependencies surfaced where the phase relies on them?
+14. If the operator asked for “just the prompt,” did the response return the default explicit command without extra policy text?
 
 ## Prompt design
+
+### Prompt fidelity rule
+
+When the user asks for the Claude CLI prompt, return the guide's default prompt form unless the user explicitly asks for a customized variant.
+
+Do not optimize, elaborate, or “improve” the prompt just because additional instructions seem helpful.
+
+The default prompt is the safe answer because this guide already defines:
+- where phase decisions belong
+- how insufficiency is handled
+- how regeneration works
+- what the prompt must never contain
+
+If those rules are already in the guide, do not restate them in the live prompt.
 
 ### Default prompt
 
@@ -263,6 +299,27 @@ claude "Read CLAUDE.md, then docs/architecture/stack-context.md, then docs/work/
 ```
 
 This is the default because it requires no inference. CLI reads exactly what you name, in the order you name it, and writes the plan to the path you specify.
+
+#### Default means default
+
+If the user asks for:
+- “just the prompt”
+- “the Claude command”
+- “the default prompt”
+- “the repo-native prompt”
+- or equivalent phrasing
+
+then return only the explicit default prompt form adapted to the current phase paths.
+
+Do not add:
+- commentary
+- rationale
+- gap language
+- regeneration language
+- extra instructions
+- “helpful” safety text
+
+unless the user explicitly asks for a customized prompt.
 
 ### Short prompt
 
@@ -285,11 +342,41 @@ If CLI generates a plan that misses the stack context, uses the wrong spec, or w
 - Restate the spec's scope, constraints, or decisions — that belongs in the spec.
 - Restate plan shape rules — those belong in `CLAUDE.md` and the spec's Implementation Sequencing Constraints section.
 - Add step-specific instructions — those belong in the spec or in the step execution prompt, not in the plan generation prompt.
+- Do not inline gap-handling or regeneration rules that are already covered by this guide.
+- Do not add “derive from the spec only” to the live prompt when this guide already governs plan construction.
+- Do not add extra source documents unless the authority stack or current phase clearly requires them.
+- Do not substitute an “improved” prompt for the default prompt unless the user explicitly asks for customization.
 
 ### Regeneration prompt
 
-When regenerating a plan after a spec update (e.g., an implementation-time gap resolution), use the same default prompt. The spec has already been updated. CLI reads the current spec and produces a plan that reflects the current decisions.
+When regenerating a plan after a spec update (e.g., an implementation-time gap resolution), use the same default prompt. The spec has already been updated. Claude CLI reads the current spec and produces a plan that reflects the current decisions.
+
+### When customization is allowed
+
+Customize the default prompt only when at least one of these is true:
+
+1. The user explicitly asks for a customized or stricter prompt.
+2. The phase clearly touches an authority artifact beyond the default pair, such as:
+   - `docs/architecture/domain.md`
+   - `docs/architecture/project-architecture.md`
+3. `CLAUDE.md` is known to be insufficient for path resolution and the user wants a short prompt alternative.
+4. The user is asking for a regeneration prompt after the spec has already changed.
+
+When customizing:
+- keep the prompt short
+- only add artifacts with clear authority relevance
+- do not restate rules already defined in this guide
+
+## Response discipline for prompt requests
+
+When answering a request for a Claude CLI prompt:
+
+1. Prefer the default explicit prompt.
+2. If the user asked for only the prompt, return only the command.
+3. If there are multiple plausible artifact sets, prefer the minimum set required by the authority stack.
+4. Explain deviations from the default prompt only if the user asks why.
+5. Never add planning-policy text to compensate for uncertainty. Fix the artifact or ask for clarification instead.
 
 ## Summary
 
-The spec carries the decisions. The plan carries the order, dependency visibility, and comment work. Step-completion reports provide evidence. Durable facts discovered in execution are promoted back into the authoritative artifacts so later planning does not guess.
+The spec carries the decisions. The plan carries the order, dependency visibility, comment work, and verification-step structure. Step-completion reports provide evidence. Durable facts discovered in execution are promoted back into the authoritative artifacts so later planning does not guess.

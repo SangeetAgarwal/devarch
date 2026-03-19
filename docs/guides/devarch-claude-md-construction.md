@@ -63,6 +63,7 @@ At minimum, include:
 - **One numbered step per CLI session.**
 - **Step completion reports are required.**
 - **Durable execution discoveries are written back.** If execution or step-completion review reveals a load-bearing dependency, prerequisite, or invariant that future work depends on, promote it into the authoritative artifacts.
+- **Step audits must check both directions.** An audit must verify not only that the code implements the spec (spec → code), but also that the spec captures what the code does (code → spec). If the code introduces behavioral details the spec is silent on — hardcoded values, query scoping, guard conditions, notification formats — the audit must flag them for artifact write-back. An audit that only confirms "code does what the spec says" is incomplete.
 
 ### 8. Rules
 
