@@ -118,6 +118,10 @@ If the code or evidence reveals a durable truth that should live in the authorit
 
 The audit must verify not only that the code implements the spec (spec → code), but also that the spec captures what the code does (code → spec). If the code introduces behavioral details the spec is silent on — hardcoded values, query scoping, guard conditions, notification formats, implicit assumptions about data shape — the audit must flag them for artifact write-back. An audit that only confirms "code does what the spec says" is incomplete.
 
+### 7) Spec contradictions must state both sides explicitly
+
+When the audit finds that the spec makes a positive claim and the code does something different, the audit must state what the spec claims and what the code does — not just note that they differ. A spec contradiction is distinct from a spec silence: silence means the spec said nothing and the code added detail (durable truth write-back); contradiction means the spec said X and the code does Y. Contradictions may have downstream dependents — other steps planned against the wrong assumption — so the audit should flag which other steps, if any, depend on the contradicted claim.
+
 ## What an audit should classify
 
 Every audit should classify findings into one or more of these categories:
