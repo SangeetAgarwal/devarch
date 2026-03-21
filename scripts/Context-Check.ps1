@@ -11,7 +11,7 @@
     Checks current context size and provides recommendations.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     This script provides estimates since actual Copilot context is not directly queryable.
     Requires: PowerShell 5.1+
 #>

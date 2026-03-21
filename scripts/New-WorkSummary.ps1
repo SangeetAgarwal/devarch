@@ -22,7 +22,7 @@
     Generates a summary with last 5 commits.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     Requires: Git, PowerShell 5.1+
 #>
 

@@ -18,7 +18,7 @@
     Updates specific implementation plan.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     Requires: PowerShell 5.1+
 #>
 

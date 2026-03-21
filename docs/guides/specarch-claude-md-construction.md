@@ -1,10 +1,10 @@
-# DevArch: CLAUDE.md Construction Guide
+# SpecArch: CLAUDE.md Construction Guide
 
-This guide covers one job: building and maintaining the `CLAUDE.md` repo agent contract that makes DevArch work.
+This guide covers one job: building and maintaining the `CLAUDE.md` repo agent contract that makes SpecArch work.
 
 ## Why CLAUDE.md exists
 
-DevArch keeps durable thinking in the artifact stack:
+SpecArch keeps durable thinking in the artifact stack:
 
 1. `CLAUDE.md` — repo-level rules
 2. `docs/architecture/stack-context.md` — runtime constraints
@@ -18,7 +18,7 @@ The live CLI prompt should be the thinnest layer.
 
 ## What CLAUDE.md must contain
 
-At minimum, a DevArch `CLAUDE.md` should include these sections:
+At minimum, a SpecArch `CLAUDE.md` should include these sections:
 
 ### 1. Project identity
 

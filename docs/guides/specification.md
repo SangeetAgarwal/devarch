@@ -4,7 +4,7 @@
 
 `specification.md` is the human-authored directive that tells the LLM what to build for a given feature or task. It captures your intent, constraints, and decisions **before** the LLM generates an implementation plan.
 
-This fills a gap in the base DevArch workflow: without a specification, the LLM has only the folder name to work from, which is too thin a contract for complex work.
+This fills a gap in the base SpecArch workflow: without a specification, the LLM has only the folder name to work from, which is too thin a contract for complex work.
 
 ## Where It Lives
 
@@ -116,7 +116,7 @@ Add TOTP-based two-factor authentication for external users accessing the applic
 5. Tell Claude Code to implement
 6. Decisions made during review become ADRs
 
-## Relationship to Other DevArch Components
+## Relationship to Other SpecArch Components
 
 - **CLAUDE.md** provides "who we are and what this project is" (via SummonAIKit)
 - **Skills** provide "how to use our tech stack correctly" (via Context7)

@@ -113,11 +113,11 @@ This workflow can be applied to any project. Here's how to set it up:
 mkdir my-project && cd my-project
 git init
 
-# 2. Copy workflow files from devarch
-git remote add devarch https://github.com/SangeetAgarwal/devarch.git
-git fetch devarch
-git checkout devarch/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
-git remote remove devarch
+# 2. Copy workflow files from specarch
+git remote add specarch https://github.com/SangeetAgarwal/specarch.git
+git fetch specarch
+git checkout specarch/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
+git remote remove specarch
 
 # 3. Customize .github/copilot-instructions.md for your project
 # Update: Overview, Current Work, Project Structure sections

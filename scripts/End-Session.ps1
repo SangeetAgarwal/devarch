@@ -21,7 +21,7 @@
     Ends session without committing changes.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     Requires: Git, PowerShell 5.1+
 #>
 

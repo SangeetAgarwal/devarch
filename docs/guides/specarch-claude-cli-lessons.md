@@ -1,6 +1,6 @@
-# DevArch: Claude CLI Execution Notes and Lessons Learned
+# SpecArch: Claude CLI Execution Notes and Lessons Learned
 
-This note captures reusable patterns for running DevArch implementation steps with Claude CLI after the specification and implementation plan are already in place.
+This note captures reusable patterns for running SpecArch implementation steps with Claude CLI after the specification and implementation plan are already in place.
 
 ## Recommended artifact pattern
 

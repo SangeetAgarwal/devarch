@@ -1,4 +1,4 @@
-# specification.md — DDD Specification Template for DevArch
+# specification.md — DDD Specification Template for SpecArch
 
 # ============================================
 

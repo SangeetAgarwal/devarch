@@ -23,7 +23,7 @@
     Creates work structure for current branch.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     Requires: Git, PowerShell 5.1+
 #>
 

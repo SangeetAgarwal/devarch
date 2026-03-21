@@ -427,7 +427,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Solution:** Run scripts from the repository root directory:
 ```powershell
-cd /path/to/devarch
+cd /path/to/specarch
 .\scripts\New-Session.ps1
 ```
 

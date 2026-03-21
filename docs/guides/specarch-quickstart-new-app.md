@@ -1,4 +1,4 @@
-# DevArch Quickstart: Building a New App from Scratch
+# SpecArch Quickstart: Building a New App from Scratch
 
 > **This guide is for new applications built from scratch.** The workflow differs for existing applications where code already exists. For existing apps, run SummonAIKit first to generate project context from your codebase, then create a feature specification against the existing structure.
 
@@ -34,9 +34,9 @@ cd my-app
 
 ---
 
-## Step 2: Create the DevArch Directory Structure
+## Step 2: Create the SpecArch Directory Structure
 
-DevArch organizes documentation alongside your code. Create the directory structure before writing any code.
+SpecArch organizes documentation alongside your code. Create the directory structure before writing any code.
 
 ```bash
 mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
@@ -55,10 +55,10 @@ mkdir -p docs/work/v1-core docs/context docs/architecture/adrs .claude
 
 ## Step 3: Copy the Session Template
 
-If you have the DevArch repo cloned locally, copy the session summary template:
+If you have the SpecArch repo cloned locally, copy the session summary template:
 
 ```bash
-cp /path/to/devarch/docs/context/.session-template.md docs/context/.session-template.md
+cp /path/to/specarch/docs/context/.session-template.md docs/context/.session-template.md
 ```
 
 Session summaries are how you maintain continuity across Claude Code sessions. At the end of each session, Claude writes a summary of what was accomplished, what decisions were made, and what remains. The next session reads the summary and picks up where you left off.
@@ -129,7 +129,7 @@ These rules are non-negotiable. They override convenience, momentum, and "I'll f
 
 ## Step 5: Write the Specification
 
-The specification is the most important document in the DevArch workflow. It captures your intent, constraints, and decisions before the LLM generates an implementation plan. Without it, the LLM guesses.
+The specification is the most important document in the SpecArch workflow. It captures your intent, constraints, and decisions before the LLM generates an implementation plan. Without it, the LLM guesses.
 
 Create **docs/work/v1-core/specification.md** covering these sections:
 
@@ -146,11 +146,11 @@ Create **docs/work/v1-core/specification.md** covering these sections:
 | **Decisions**      | Answers to any open questions. If questions remain, list them — resolve before building.                              |
 | **External Setup** | Manual steps the human must complete outside Claude Code — creating accounts, configuring services, copying API keys. |
 
-> A specification template is available in the DevArch repo at **docs/guides/specification.md**. The level of detail matters — field-level data models, validation rules, and explicit scope boundaries give the LLM enough to generate a precise implementation plan rather than a generic one.
+> A specification template is available in the SpecArch repo at **docs/guides/specification.md**. The level of detail matters — field-level data models, validation rules, and explicit scope boundaries give the LLM enough to generate a precise implementation plan rather than a generic one.
 
 ### When to Add Event Storming and DDD
 
-For straightforward CRUD apps, a specification is sufficient. For complex domains with multiple actors, policies, bounded contexts, or intricate business rules, add an event storm and domain model alongside the specification. These base artifacts describe the full domain and can serve multiple specifications. Templates are available in the DevArch repo at **docs/guides/**.
+For straightforward CRUD apps, a specification is sufficient. For complex domains with multiple actors, policies, bounded contexts, or intricate business rules, add an event storm and domain model alongside the specification. These base artifacts describe the full domain and can serve multiple specifications. Templates are available in the SpecArch repo at **docs/guides/**.
 
 ---
 
@@ -160,7 +160,7 @@ Before opening Claude Code, commit the structure and specification so everything
 
 ```bash
 git add .
-git commit -m "Add DevArch structure and v1 specification"
+git commit -m "Add SpecArch structure and v1 specification"
 git push
 ```
 
@@ -245,7 +245,7 @@ This scans your codebase and generates:
 
 **Configure Context7:**
 
-Add Context7 as an MCP server in your Claude Code configuration. Context7 provides live, version-specific documentation lookup during sessions, preventing the LLM from using outdated API references. See the DevArch scaffolding guide at **docs/guides/scaffolding.md** for setup details.
+Add Context7 as an MCP server in your Claude Code configuration. Context7 provides live, version-specific documentation lookup during sessions, preventing the LLM from using outdated API references. See the SpecArch scaffolding guide at **docs/guides/scaffolding.md** for setup details.
 
 ---
 
@@ -351,8 +351,8 @@ Not every app needs all four layers. Match the verification to the architecture:
 | Step | Action                                                 | Produces                                                                                         |
 | ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | 1    | Create repository on GitHub and clone locally          | Empty repo                                                                                       |
-| 2    | Create DevArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                                     |
-| 3    | Copy session template from DevArch repo                | docs/context/.session-template.md                                                                |
+| 2    | Create SpecArch directory structure                     | docs/work/, docs/context/, docs/architecture/adrs/, .claude/                                     |
+| 3    | Copy session template from SpecArch repo                | docs/context/.session-template.md                                                                |
 | 4    | Create minimal CLAUDE.md with Invariants               | .claude/CLAUDE.md                                                                                |
 | 5    | Write the specification                                | docs/work/v1-core/specification.md                                                               |
 | 6    | Commit and push                                        | Clean starting point in version control                                                          |
@@ -374,8 +374,8 @@ Not every app needs all four layers. Match the verification to the architecture:
 
 | Resource                                   | Location                                  |
 | ------------------------------------------ | ----------------------------------------- |
-| DevArch repo                               | https://github.com/SangeetAgarwal/devarch |
-| DevArch philosophy                         | docs/guides/devarch-philosophy.md         |
+| SpecArch repo                               | https://github.com/SangeetAgarwal/specarch |
+| SpecArch philosophy                         | docs/guides/specarch-philosophy.md         |
 | Specification convention guide             | docs/guides/specification.md              |
 | Scaffolding guide (SummonAIKit + Context7) | docs/guides/scaffolding.md                |
 | Skill-building standards                   | docs/guides/skill-standards.md            |

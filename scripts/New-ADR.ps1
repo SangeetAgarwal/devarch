@@ -22,7 +22,7 @@
     Creates ADR with Accepted status.
 
 .NOTES
-    Author: DevArch
+    Author: SpecArch
     Requires: PowerShell 5.1+
 #>
 
