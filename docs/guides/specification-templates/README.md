@@ -1,4 +1,4 @@
-# DDD Specification Templates for SpecArch
+# DDD Specification Templates for SpecArc
 
 These templates capture Domain-Driven Design constructs in a format optimized for agentic development. The DDD vocabulary is used directly — not taught — because the agent already understands aggregate roots, bounded contexts, invariants, domain events, and anticorruption layers. Every DDD term in the specification acts as a compressed implementation instruction.
 
@@ -73,7 +73,7 @@ The cost is human time. Extraction is manual work that forces you to make scope 
 1. Maintain the master spec through domain modeling sessions (Event Storming, domain expert conversations)
 2. When starting a new feature, extract the relevant slice into the work folder's specification.md
 3. The agent reads the feature spec and generates an implementation plan, surfacing gaps
-4. Gaps are written into the feature spec first, then resolved by the human — same gap resolution flow as any SpecArch specification
+4. Gaps are written into the feature spec first, then resolved by the human — same gap resolution flow as any SpecArc specification
 5. The agent implements within the scoped feature spec
 6. Discoveries or refinements during implementation get folded back into the master spec
 7. Session summaries reference DDD terms from the feature spec
@@ -106,7 +106,7 @@ Each section depends on the ones above it. Domain Events can't be defined withou
 
 The examples are based on the Scrum project management application from Vaughn Vernon's _Domain-Driven Design Distilled_ (Addison-Wesley, 2016). Vernon uses this platform as a running example throughout the book to illustrate strategic and tactical DDD patterns across multiple Bounded Contexts.
 
-The domain model — Product, BacklogItem, Sprint, Discussion, and the three Bounded Contexts (Agile PM, Collaboration, Identity & Access) — originates from Vernon's work. The specification format, SpecArch integration, feature-level extraction pattern, and agentic development workflow are original contributions.
+The domain model — Product, BacklogItem, Sprint, Discussion, and the three Bounded Contexts (Agile PM, Collaboration, Identity & Access) — originates from Vernon's work. The specification format, SpecArc integration, feature-level extraction pattern, and agentic development workflow are original contributions.
 
 We chose this example for these templates because:
 

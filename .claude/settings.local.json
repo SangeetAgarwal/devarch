@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(both sides explicitly.\" When the audit finds that the spec makes a:*)"
+      "Bash(both sides explicitly.\" When the audit finds that the spec makes a:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

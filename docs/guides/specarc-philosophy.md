@@ -1,10 +1,10 @@
-# SpecArch Philosophy: Specification-Driven Development in the Agentic Era
+# SpecArc Philosophy: Specification-Driven Development in the Agentic Era
 
 ## The shift
 
 In agentic development, code generation is cheap. Confidence that the code does what you intended is expensive.
 
-SpecArch moves the design burden upward into artifacts the model can read, follow, and verify:
+SpecArc moves the design burden upward into artifacts the model can read, follow, and verify:
 
 - the specification captures intent, constraints, scope, and acceptance criteria
 - the implementation plan captures execution order and verification boundaries
@@ -22,7 +22,7 @@ The specification is the highest-leverage artifact. It is simultaneously:
 
 Everything else serves the specification.
 
-## The SpecArch flow
+## The SpecArc flow
 
 ```text
 Domain Discovery → Specification → Implementation Plan → Build → Verify
@@ -42,7 +42,7 @@ Each artifact has a different job:
 - **Implementation plan** — ordered execution, step dependencies, verification sequence, comment obligations
 - **Step-completion reports** — evidence of what changed, why, what passed, and what was blocked
 
-A complete SpecArch review often needs all four.
+A complete SpecArc review often needs all four.
 
 ## Evidence is not authority
 
@@ -57,7 +57,7 @@ Example pattern:
 3. a later phase depends on that helper
 4. if the helper is not written back into the current spec or plan, later review may falsely treat it as an invention or hidden assumption
 
-The SpecArch rule is:
+The SpecArc rule is:
 
 **discover in execution → verify in evidence → promote into authoritative artifacts**
 
@@ -89,7 +89,7 @@ Workflow:
 
 ## Artifact write-back
 
-If execution reveals a durable, load-bearing fact that later work depends on, SpecArch requires writing it back into the authoritative artifact set.
+If execution reveals a durable, load-bearing fact that later work depends on, SpecArc requires writing it back into the authoritative artifact set.
 
 Promote it to the right place:
 
@@ -118,7 +118,7 @@ With write-back:
 
 ## Practical summary
 
-SpecArch is not just “spec first.” It is:
+SpecArc is not just “spec first.” It is:
 
 - spec first
 - plan derived from spec

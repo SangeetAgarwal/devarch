@@ -1,4 +1,4 @@
-# Claude CLI Step Execution for SpecArch
+# Claude CLI Step Execution for SpecArc
 
 This guide covers execution of an existing implementation plan.
 

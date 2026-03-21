@@ -1,4 +1,4 @@
-# SpecArch Gap Note Template
+# SpecArc Gap Note Template
 
 Use for larger human-discovered or execution-discovered gaps.
 

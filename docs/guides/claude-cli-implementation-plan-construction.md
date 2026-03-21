@@ -1,4 +1,4 @@
-# Claude CLI Implementation Plan Construction for SpecArch
+# Claude CLI Implementation Plan Construction for SpecArc
 
 This guide covers one job only: generating a trustworthy implementation plan from a phase specification.
 
@@ -151,7 +151,7 @@ Rules:
 - They should identify the criteria to verify and any manual verification prerequisites from Human Steps.
 - If manual verification may remain after the CLI session ends, the plan should expect the verification step to produce an explicit human handoff checklist in its completion report.
 
-## Code comment policy in SpecArch
+## Code comment policy in SpecArc
 
 Comments are not decoration. They are implementation-side traceability.
 

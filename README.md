@@ -1,12 +1,14 @@
-# SpecArch
+# SpecArc™
 
-Specification-driven development for the agentic era.
+**The trajectory from idea to code.**
+
+[SpecArc.ai](https://specarc.ai)
 
 ## The Leverage Isn't in the Agents — It's in What You Feed Them
 
 In agentic development, the LLM writes the code. It generates implementation in minutes. The human no longer codes — the human specifies. And the quality of what the LLM produces depends entirely on the quality of what it reads.
 
-SpecArch is a structured, document-driven workflow where the developer writes the key artifacts and the implementing agent reads them. The human stays in the governance seat.
+SpecArc is a structured, document-driven workflow where the developer writes the key artifacts and the implementing agent reads them. The human stays in the governance seat.
 
 While writing software by hand, we often led with unit tests. TDD was never just about testing — it was about design: forcing you to define behavior before implementation. In agentic development, that design step has shifted. We now lead with a specification instead. The spec captures intent, scope, constraints, validation rules, data models, security policies, and acceptance criteria before the LLM generates a single line of code.
 
@@ -28,18 +30,18 @@ The LLM's job shrinks from "figure out the domain, design the architecture, and 
 
 ## Getting Started
 
-If you're building a new app from scratch, start with the [Quickstart Guide](docs/guides/specarch-quickstart-new-app.md). It walks through every step from empty repo to verified application.
+If you're building a new app from scratch, start with the [Quickstart Guide](docs/guides/specarc-quickstart-new-app.md). It walks through every step from empty repo to verified application.
 
-If you're applying SpecArch to an existing codebase, run SummonAIKit first to generate project context, then write a specification for your next feature. See the [Scaffolding Guide](docs/guides/scaffolding.md).
+If you're applying SpecArc to an existing codebase, run SummonAIKit first to generate project context, then write a specification for your next feature. See the [Scaffolding Guide](docs/guides/scaffolding.md).
 
 ## Repository Structure
 
 ```
-specarch/
+specarc/
 ├── docs/
 │   ├── guides/                            # Methodology
-│   │   ├── specarch-philosophy.md          # Spec-driven design thesis
-│   │   ├── specarch-quickstart-new-app.md  # New app walkthrough
+│   │   ├── specarc-philosophy.md          # Spec-driven design thesis
+│   │   ├── specarc-quickstart-new-app.md  # New app walkthrough
 │   │   ├── specification.md               # specification.md convention
 │   │   ├── scaffolding.md                 # SummonAIKit + Context7
 │   │   ├── skill-standards.md             # Building Claude Code skills
@@ -83,10 +85,10 @@ specarch/
 
 | Guide                                                               | What It Covers                                                                                                                                                                                   |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [SpecArch Philosophy](docs/guides/specarch-philosophy.md)             | Why specifications replace TDD's forcing function in agentic development. The feedback loop, self-improving conventions, and what SpecArch is not.                                                |
-| [Quickstart: New App](docs/guides/specarch-quickstart-new-app.md)    | Step-by-step from empty repo to verified app. Directory structure, CLAUDE.md with invariants, specification writing, gap resolution, scaffolding, building in sessions, four-layer verification. |
+| [SpecArc Philosophy](docs/guides/specarc-philosophy.md)             | Why specifications replace TDD's forcing function in agentic development. The feedback loop, self-improving conventions, and what SpecArc is not.                                                |
+| [Quickstart: New App](docs/guides/specarc-quickstart-new-app.md)    | Step-by-step from empty repo to verified app. Directory structure, CLAUDE.md with invariants, specification writing, gap resolution, scaffolding, building in sessions, four-layer verification. |
 | [The specification.md Convention](docs/guides/specification.md)     | What goes in a specification, what doesn't, external setup, gap resolution with _(gap)_ tags, and verification against the spec.                                                                 |
-| [Scaffolding](docs/guides/scaffolding.md)                           | SummonAIKit generates project context and skills from your codebase. Context7 provides live documentation during sessions. How they complement SpecArch.                                          |
+| [Scaffolding](docs/guides/scaffolding.md)                           | SummonAIKit generates project context and skills from your codebase. Context7 provides live documentation during sessions. How they complement SpecArc.                                          |
 | [Skill-Building Standards](docs/guides/skill-standards.md)          | How to build Claude Code skills. Folder structure, YAML frontmatter, progressive disclosure, testing, and a full TOTP walkthrough.                                                               |
 | [DDD Specification Templates](docs/guides/specification-templates/) | DDD-driven specification templates with blank templates for master and feature specs, plus a case study using Vernon's Scrum Project Management Software example.                                |
 | [Claude Code Workflow](docs/claude-code-workflow-guide.md)          | Terminal-first development with Claude Code CLI. Session management, hooks, context strategies.                                                                                                  |
@@ -132,8 +134,8 @@ The core workflow is in use — specifications, gap resolution, session summarie
 
 The Event Storming and DDD specification templates are the latest additions. This methodology is being built in the open. What works stays. What doesn't gets revised.
 
-## License
+### Legal & Attribution
 
-MIT — Created by [Sangeet Agarwal](https://github.com/SangeetAgarwal)
+**SpecArc™** and the SpecArc logo are trademarks of Sangeet Agarwal.
 
-Forked from [ChicagoDave/devarch](https://github.com/ChicagoDave/devarch).
+This project includes portions of code under the **MIT License**. Original license notices have been preserved in the `LICENSE` file as required.

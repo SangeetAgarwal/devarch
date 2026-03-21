@@ -1,4 +1,4 @@
-# Claude CLI Step Audit for SpecArch
+# Claude CLI Step Audit for SpecArc
 
 This guide covers one job only: auditing an already-implemented numbered step to see whether the code, comments, verification evidence, and step-completion report are actually in sync with the authoritative artifacts.
 
@@ -279,7 +279,7 @@ If the directory does not exist, Claude must create it.
 
 ## How audit and verification work together
 
-A clean SpecArch flow usually looks like this:
+A clean SpecArc flow usually looks like this:
 
 1. run one numbered implementation step
 2. write `step-completion-<N>.md`
