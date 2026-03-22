@@ -4,6 +4,10 @@
 
 [SpecArc.ai](https://specarc.ai)
 
+<p align="center">
+  <img src="specarc_vertical.png" alt="SpecArc workflow — from Event Storming to Ship" />
+</p>
+
 ## The Leverage Isn't in the Agents — It's in What You Feed Them
 
 In agentic development, the LLM writes the code. It generates implementation in minutes. The human no longer codes — the human specifies. And the quality of what the LLM produces depends entirely on the quality of what it reads.
