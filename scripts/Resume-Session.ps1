@@ -11,7 +11,7 @@
     Resumes work with minimal context loading.
 
 .NOTES
-    Author: SpecArc
+    Author: SpecFrame
     Requires: Git, PowerShell 5.1+
 #>
 

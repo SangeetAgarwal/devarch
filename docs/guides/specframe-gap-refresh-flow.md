@@ -1,4 +1,4 @@
-# SpecArc Gap Refresh Flow
+# SpecFrame Gap Refresh Flow
 
 ## Standard Flow
 

@@ -21,7 +21,7 @@
     Ends session without committing changes.
 
 .NOTES
-    Author: SpecArc
+    Author: SpecFrame
     Requires: Git, PowerShell 5.1+
 #>
 

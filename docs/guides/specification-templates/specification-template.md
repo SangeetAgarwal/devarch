@@ -1,4 +1,4 @@
-# specification.md — DDD Specification Template for SpecArc
+# specification.md — DDD Specification Template for SpecFrame
 
 # ============================================
 

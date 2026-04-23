@@ -113,11 +113,11 @@ This workflow can be applied to any project. Here's how to set it up:
 mkdir my-project && cd my-project
 git init
 
-# 2. Copy workflow files from specarc
-git remote add specarc https://github.com/SangeetAgarwal/specarc.git
-git fetch specarc
-git checkout specarc/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
-git remote remove specarc
+# 2. Copy workflow files from specframe
+git remote add specframe https://github.com/SangeetAgarwal/specframe.git
+git fetch specframe
+git checkout specframe/copilot/adapt-cli-workflow-for-copilot -- scripts/ .github/copilot-instructions.md .copilotignore docs/context/.session-template.md
+git remote remove specframe
 
 # 3. Customize .github/copilot-instructions.md for your project
 # Update: Overview, Current Work, Project Structure sections

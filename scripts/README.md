@@ -427,7 +427,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Solution:** Run scripts from the repository root directory:
 ```powershell
-cd /path/to/specarc
+cd /path/to/specframe
 .\scripts\New-Session.ps1
 ```
 

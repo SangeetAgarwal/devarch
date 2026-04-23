@@ -23,7 +23,7 @@
     Creates work structure for current branch.
 
 .NOTES
-    Author: SpecArc
+    Author: SpecFrame
     Requires: Git, PowerShell 5.1+
 #>
 

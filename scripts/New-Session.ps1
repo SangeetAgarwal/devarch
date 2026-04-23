@@ -18,7 +18,7 @@
     Resumes the current session without creating a new file.
 
 .NOTES
-    Author: SpecArc
+    Author: SpecFrame
     Requires: Git, PowerShell 5.1+
 #>
 

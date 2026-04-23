@@ -18,7 +18,7 @@
     Updates specific implementation plan.
 
 .NOTES
-    Author: SpecArc
+    Author: SpecFrame
     Requires: PowerShell 5.1+
 #>
 

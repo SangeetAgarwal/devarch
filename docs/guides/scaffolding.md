@@ -93,10 +93,10 @@ SummonAIKit tells Claude "here's what this project uses." Context7 tells Claude 
 
 1. Run SummonAIKit to scaffold CLAUDE.md and skills
 2. Configure Context7 MCP for live documentation
-3. Proceed with SpecArc workflow
+3. Proceed with SpecFrame workflow
 
 ```
-Existing codebase → SummonAIKit scaffolds → Context7 MCP configured → Ready for SpecArc workflow
+Existing codebase → SummonAIKit scaffolds → Context7 MCP configured → Ready for SpecFrame workflow
 ```
 
 ### New (Greenfield) Repos
@@ -107,20 +107,20 @@ SummonAIKit can't scaffold what doesn't exist. For greenfield projects:
 2. Have Claude Code scaffold the initial project structure
 3. Run SummonAIKit after the initial code exists
 4. Configure Context7 MCP for live documentation
-5. Continue with the SpecArc workflow
+5. Continue with the SpecFrame workflow
 
 ```
-specification.md → Claude Code scaffolds project → SummonAIKit generates skills → Continue with SpecArc
+specification.md → Claude Code scaffolds project → SummonAIKit generates skills → Continue with SpecFrame
 ```
 
-## Relationship to SpecArc
+## Relationship to SpecFrame
 
-SummonAIKit + Context7 handle the **tooling and knowledge layer**. SpecArc handles the **workflow layer**.
+SummonAIKit + Context7 handle the **tooling and knowledge layer**. SpecFrame handles the **workflow layer**.
 
 - **CLAUDE.md** (SummonAIKit) tells Claude "here's the project"
 - **Skills** (SummonAIKit) tell Claude "here's what we use and how"
 - **Context7 MCP** tells Claude "here's the current documentation"
 - **Hooks** (SummonAIKit) ensure skills are evaluated every prompt
-- **SpecArc workflow** structures how you and Claude collaborate over time
+- **SpecFrame workflow** structures how you and Claude collaborate over time
 
-They are complementary. SummonAIKit + Context7 make every session informed. SpecArc makes every session productive and traceable.
+They are complementary. SummonAIKit + Context7 make every session informed. SpecFrame makes every session productive and traceable.
