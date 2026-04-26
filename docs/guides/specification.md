@@ -286,6 +286,22 @@ Six months from now, someone looks at the project and asks: "Why Vercel? Why 20 
 
 The specification is the single source of truth. Gap resolution keeps it that way.
 
+### When Gaps Span Phases
+
+The gap resolution above is intra-phase: one gap, one spec, one plan, one resume point. After two or three feature phases ship, a different kind of gap appears — drift across multiple prior specs, where each spec is internally coherent but together they produce an incoherent system. No single spec is wrong; the gap belongs to none of them individually.
+
+This is an inter-phase gap, addressed by a **Gap Sweep**, not by editing one prior spec ad hoc. A Gap Sweep is a deliberate phase whose work is:
+
+- inventory every cross-phase finding from verification, observations, and post-deploy use
+- decide each one (resolve in this sweep, defer, or reject as not-a-gap)
+- edit the affected prior-phase specs in place, tagged inline with the sweep's phase letter
+- generate an implementation plan that sequences the spec edits and any code changes
+- execute one step per CLI session, same rhythm as a feature phase
+
+Same gap-resolution discipline. Broader scope. Folder name follows the pattern `v<version>-<trigger>-gap-sweep` (e.g., `v1-2c-gap-sweep`, `v1-pre-launch-gap-sweep`) so the kind and trigger of the phase are visible in the CLAUDE.md phase table.
+
+See `specframe-gap-sweep.md` for the full mechanics and `specframe-gap-sweep-template.md` for the inventory artifact.
+
 ---
 
 ## Verification

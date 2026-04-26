@@ -34,3 +34,9 @@ temp/
 # Test artifacts
 *.test.md
 test-*.md
+
+# Claude Code state — local overrides and credentials should not be committed.
+# Shared .claude/settings.json, .claude/agents/, .claude/commands/, .claude/hooks/,
+# and .claude/skills/ remain tracked.
+.claude/settings.local.json
+.claude/.credentials.json

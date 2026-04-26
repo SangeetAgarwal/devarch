@@ -1,6 +1,8 @@
 # SpecFrame Gap Note Template
 
-Use for larger human-discovered or execution-discovered gaps.
+Use for larger human-discovered or execution-discovered gaps within a single phase. The gap belongs to the current phase's spec; one spec gets updated; one plan gets regenerated; execution resumes from one impacted step.
+
+For gaps that span multiple prior phases (drift discovered between phases, during verification, or in post-deploy use, where two or more prior specs need edits and there is no current step to resume from), use the inventory template in `specframe-gap-sweep-template.md` instead. Both are gap analysis; the difference is whether one spec or several need to be touched.
 
 Suggested path:
 

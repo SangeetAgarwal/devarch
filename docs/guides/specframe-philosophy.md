@@ -87,6 +87,25 @@ Workflow:
 4. regenerate the plan if behavior, sequencing, scope, or baseline dependencies changed
 5. re-execute the blocked step in a new session
 
+### Inter-phase gaps (Gap Sweep)
+
+Verification, post-deploy use, or the start of a new phase reveals drift across multiple prior phases — phases that each shipped coherent-internally but together produced an incoherent union. No single prior phase spec is wrong; the drift belongs to no one of them.
+
+This is a structurally different gap. There is no current step to resume from. The "spec to update" is plural — two or three prior specs each need edits, and sometimes a cross-cutting artifact (`domain.md`, `project-architecture.md`, `CLAUDE.md`) too. The trigger is not the LLM saying "I cannot proceed." The trigger is a human or LLM noticing the drift after the fact.
+
+The intra-phase loop above cannot absorb this without distorting. Folding inter-phase gaps into the next feature phase bloats that phase's spec, breaks the spec-as-source-of-truth discipline, and leaves the cross-cutting drift hidden.
+
+Workflow:
+
+1. create a new phase folder named `<trigger>-gap-sweep` (e.g., `2c-gap-sweep`, `pre-launch-gap-sweep`)
+2. produce an inventory document — collect every finding, classify, decide each one (resolve, defer, reject), map every prior-phase spec that will be touched
+3. promote the inventory into the sweep's specification
+4. generate an implementation plan that orders the spec edits, the cross-cutting artifact edits, and the code changes
+5. execute one step per CLI session, same rhythm as a feature phase
+6. tag each prior-spec edit inline with the sweep's phase letter, e.g., `_(2c-gap-sweep: extended to Self-Paced)_`
+
+See `specframe-gap-sweep.md` for the full mechanics.
+
 ## Artifact write-back
 
 If execution reveals a durable, load-bearing fact that later work depends on, SpecFrame requires writing it back into the authoritative artifact set.
@@ -123,7 +142,8 @@ SpecFrame is not just “spec first.” It is:
 - spec first
 - plan derived from spec
 - execution verified step by step
-- gaps resolved by updating the spec first
+- intra-phase gaps resolved by updating the spec first
+- inter-phase drift resolved by deliberate Gap Sweeps that edit prior specs in place
 - durable execution discoveries promoted back into the main artifacts
 
 That is how the artifact stack stays aligned with reality instead of freezing at the moment the first spec was written.

@@ -158,6 +158,29 @@ For straightforward CRUD apps, a specification is sufficient. For complex domain
 
 Before opening Claude Code, commit the structure and specification so everything is tracked.
 
+### First, set up `.gitignore` for Claude Code state
+
+Some files inside `.claude/` are per-developer state and must not be committed — primarily local-override settings and credentials. Create or extend `.gitignore` with:
+
+```gitignore
+# Claude Code state — local overrides and credentials should not be committed.
+# Shared .claude/settings.json, .claude/agents/, .claude/commands/, .claude/hooks/,
+# and .claude/skills/ remain tracked.
+.claude/settings.local.json
+.claude/.credentials.json
+```
+
+The convention follows the same pattern as `.env` vs `.env.local` and `tsconfig.json` vs `tsconfig.local.json`: shared, project-wide files stay tracked; local-only overrides do not. Without this entry, the first time Claude Code asks you to approve a permission and you click "always allow," your local choice gets written to `settings.local.json` and committed alongside the next routine `git add .` — leaking your machine's preferences into the shared repo and creating noise in pull requests.
+
+If you accidentally committed `settings.local.json` already, untrack it without deleting the local file:
+
+```bash
+git rm --cached .claude/settings.local.json
+git commit -m "chore: untrack .claude/settings.local.json"
+```
+
+### Then commit
+
 ```bash
 git add .
 git commit -m "Add SpecFrame structure and v1 specification"
@@ -170,6 +193,7 @@ At this point, your repo should look like:
 my-app/
 ├── .claude/
 │   └── CLAUDE.md                   # Minimal project overview
+├── .gitignore                      # Includes .claude/settings.local.json
 ├── docs/
 │   ├── architecture/
 │   │   └── adrs/                   # Empty, ready for decisions

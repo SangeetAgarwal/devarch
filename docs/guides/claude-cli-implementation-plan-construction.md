@@ -377,6 +377,20 @@ When answering a request for a Claude CLI prompt:
 4. Explain deviations from the default prompt only if the user asks why.
 5. Never add planning-policy text to compensate for uncertainty. Fix the artifact or ask for clarification instead.
 
+## Plan construction for Gap Sweep phases
+
+The same plan construction guidance applies to Gap Sweep phases (`v<version>-<trigger>-gap-sweep`), with one structural difference: the primary work units in a sweep plan are **edits to prior phase specs**, not new feature behavior. The sweep's own specification (promoted from the inventory document) describes the cross-phase findings and decisions; the implementation plan sequences:
+
+1. spec edits to each touched prior phase, grouped by spec
+2. cross-cutting artifact edits (`domain.md`, `project-architecture.md`, `stack-context.md`, `CLAUDE.md`)
+3. code changes implementing the corrected behavior, sequenced after the spec edits they implement
+4. tests verifying the corrected behavior
+5. a final verification step that walks the inventory item by item
+
+Spec edits to prior phases must be tagged inline with the sweep's phase letter (e.g., `_(2c-gap-sweep: extended to Self-Paced)_`) so the correction history is visible to future readers.
+
+See `specframe-gap-sweep.md` for triggers, naming convention, and the inventory step that precedes plan generation.
+
 ## Summary
 
 The spec carries the decisions. The plan carries the order, dependency visibility, comment work, and verification-step structure. Step-completion reports provide evidence. Durable facts discovered in execution are promoted back into the authoritative artifacts so later planning does not guess.

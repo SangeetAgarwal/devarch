@@ -294,6 +294,24 @@ That sequence keeps the roles clear:
 - remediation fixes proven drift
 - verification closes planned done criteria
 
+## When audit findings warrant a Gap Sweep instead of remediation
+
+Most audit findings are about the audited step itself: code that does not match its spec, missing comments, unsupported report claims, or a durable truth that should be written back into this phase's artifacts. Per-step remediation (or report-sync) is the right tool.
+
+Some audit findings reveal drift that does not belong to the audited step at all. Examples:
+
+- the code under review behaves correctly per its own spec, but contradicts behavior shipped by a prior phase (e.g., a CTA pattern this phase introduced is inconsistent with how a prior phase's CTA was specified)
+- the audited step exposes a missing contract that no prior phase spec defined (e.g., error UX, lifecycle ownership, cross-context translation)
+- the audited code is correct against its phase spec, but the audit reveals that two prior phases each defined the same surface differently and now must be reconciled
+
+In those cases, per-step remediation is the wrong tool — the drift is structural and inter-phase. The audit should:
+
+1. classify the finding as **Update authoritative artifacts before proceeding**
+2. note explicitly that the finding belongs to a future Gap Sweep, not to remediation of the audited step
+3. record the finding in a place where it will be picked up by the next sweep — typically the project's `ux-observations.md`, a known-issues backlog, or a dedicated cross-phase gap log
+
+The audit does not start the sweep. The sweep is its own deliberate phase. See `specframe-gap-sweep.md` for triggers and mechanics.
+
 ## Summary
 
 Audit is the independent truth check that sits beside step execution, not inside it.
