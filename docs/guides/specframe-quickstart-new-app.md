@@ -127,6 +127,8 @@ These rules are non-negotiable. They override convenience, momentum, and "I'll f
 
 ---
 
+> **PRD upstream.** In a typical product org, a PRD precedes the spec — Product captures intent and rationale for human stakeholders, and the specification restates that intent as the LLM-readable directive engineering hands to the LLM. The PRD doesn't go away; it feeds the spec. SpecFrame provides a [PRD template](specframe-prd-template.md) plus a [Specification Questionnaire](specification-questionnaire.md) — a fillable form whose completed output **is** the spec. For broader Product-team orientation on where the spec sits relative to the PRD, see [SpecFrame for Product Teams](specframe-for-product.md).
+
 ## Step 5: Write the Specification
 
 The specification is the most important document in the SpecFrame workflow. It captures your intent, constraints, and decisions before the LLM generates an implementation plan. Without it, the LLM guesses.
@@ -396,11 +398,14 @@ Not every app needs all four layers. Match the verification to the architecture:
 
 ## Resources
 
-| Resource                                   | Location                                  |
-| ------------------------------------------ | ----------------------------------------- |
-| SpecFrame repo                               | https://github.com/SangeetAgarwal/specframe |
-| SpecFrame philosophy                         | docs/guides/specframe-philosophy.md         |
-| Specification convention guide             | docs/guides/specification.md              |
-| Scaffolding guide (SummonAIKit + Context7) | docs/guides/scaffolding.md                |
-| Skill-building standards                   | docs/guides/skill-standards.md            |
-| Claude Code workflow guide                 | docs/claude-code-workflow-guide.md        |
+| Resource                                   | Location                                       |
+| ------------------------------------------ | ---------------------------------------------- |
+| SpecFrame repo                             | https://github.com/SangeetAgarwal/specframe    |
+| SpecFrame philosophy                       | docs/guides/specframe-philosophy.md            |
+| SpecFrame for Product Teams                | docs/guides/specframe-for-product.md           |
+| PRD template                               | docs/guides/specframe-prd-template.md          |
+| Specification convention guide             | docs/guides/specification.md                   |
+| Specification questionnaire (fillable)     | docs/guides/specification-questionnaire.md     |
+| Scaffolding guide (SummonAIKit + Context7) | docs/guides/scaffolding.md                     |
+| Skill-building standards                   | docs/guides/skill-standards.md                 |
+| Claude Code workflow guide                 | docs/claude-code-workflow-guide.md             |

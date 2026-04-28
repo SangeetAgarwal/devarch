@@ -2,6 +2,8 @@
 
 These templates capture Domain-Driven Design constructs in a format optimized for agentic development. The DDD vocabulary is used directly — not taught — because the agent already understands aggregate roots, bounded contexts, invariants, domain events, and anticorruption layers. Every DDD term in the specification acts as a compressed implementation instruction.
 
+> **For non-DDD work** (typical CRUD features, simple business logic), SpecFrame provides a lighter path: the [specification.md convention](../specification.md) covers the format, and the [specification questionnaire](../specification-questionnaire.md) is a fillable form whose completed output is the spec. For Product-facing artifacts upstream of the spec, see the [PRD template](../specframe-prd-template.md) and the [SpecFrame for Product Teams](../specframe-for-product.md) intro. The DDD-flavored templates below are for cases where the domain warrants the additional rigor.
+
 ## Two Approaches
 
 ### Approach 1: Single Specification

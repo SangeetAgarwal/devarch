@@ -4,6 +4,8 @@
 
 `specification.md` is the human-authored directive that tells the LLM what to build for a given feature or task. It captures your intent, constraints, and decisions **before** the LLM generates an implementation plan.
 
+In a typical product org, a PRD sits upstream of the specification — Product writes the PRD to capture intent for human stakeholders, and the specification restates that intent as the LLM-readable directive. The PRD doesn't go away; it feeds the spec. SpecFrame provides a PRD template at `specframe-prd-template.md` and a fillable questionnaire at `specification-questionnaire.md` whose completed form **is** the specification — useful when handing off to non-engineering stakeholders.
+
 This fills a gap in the base SpecFrame workflow: without a specification, the LLM has only the folder name to work from, which is too thin a contract for complex work.
 
 ## Where It Lives
@@ -120,7 +122,9 @@ Add TOTP-based two-factor authentication for external users accessing the applic
 
 - **CLAUDE.md** provides "who we are and what this project is" (via SummonAIKit)
 - **Skills** provide "how to use our tech stack correctly" (via Context7)
-- **specification.md** provides "what I want from this specific feature"
+- **PRD** (`specframe-prd-template.md`) captures "what we're building and why" for human stakeholders — sits upstream of the spec
+- **specification.md** provides "what I want from this specific feature" — restates the PRD as an LLM-readable directive
+- **specification-questionnaire.md** is a fillable form-style alternative whose completed output is the spec — useful when handing off to non-engineering stakeholders
 - **implementation-plan.md** provides "how the LLM will build it"
 - **Session summaries** provide "where we left off"
 - **ADRs** provide "why we decided what we decided"

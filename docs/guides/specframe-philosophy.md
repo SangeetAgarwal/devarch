@@ -25,10 +25,12 @@ Everything else serves the specification.
 ## The SpecFrame flow
 
 ```text
-Domain Discovery → Specification → Implementation Plan → Build → Verify
-                          ↑              ↓            ↓
-                     Gap Resolution   Execution    Step Evidence
+Domain Discovery → PRD → Specification → Implementation Plan → Build → Verify
+                                ↑                    ↓             ↓
+                          Gap Resolution        Execution     Step Evidence
 ```
+
+The PRD remains the upstream artifact — product intent captured for human stakeholders. SpecFrame doesn't replace it; the specification is added downstream as the LLM-readable directive. There's no substitute for a well-written PRD, agentic development or otherwise.
 
 ## Artifact roles
 
